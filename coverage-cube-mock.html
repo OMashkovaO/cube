@@ -12,7 +12,6 @@
             background: #0f0f23;
         }
 
-        /* ЭКРАН ВЫБОРА ТС */
         #selection-screen {
             position: fixed;
             top: 0;
@@ -39,7 +38,7 @@
             font-size: 14px;
             color: #888;
             margin-bottom: 30px;
-            max-width: 600px;
+            max-width: 800px;
             text-align: center;
             line-height: 1.6;
         }
@@ -52,7 +51,7 @@
         }
 
         .chain-btn {
-            width: 220px;
+            width: 280px;
             padding: 30px 20px;
             background: rgba(255,255,255,0.05);
             border: 2px solid #444;
@@ -60,7 +59,7 @@
             color: white;
             cursor: pointer;
             transition: all 0.3s;
-            text-align: center;
+            text-align: left;
         }
 
         .chain-btn:hover {
@@ -79,23 +78,31 @@
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 10px;
+            text-align: center;
         }
 
         .chain-type {
             font-size: 12px;
             color: #aaa;
             margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
         }
 
         .chain-levels {
             font-size: 11px;
-            color: #888;
+            color: #ccc;
             line-height: 1.5;
-            text-align: left;
-            padding: 0 10px;
         }
 
-        /* ОСНОВНОЙ ИНТЕРФЕЙС (изначально скрыт) */
+        .chain-levels b {
+            color: #fff;
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
         #app-container {
             display: none;
             width: 100%;
@@ -140,7 +147,6 @@
 
         #change-chain-btn:hover { background: #666; }
 
-        /* ЛЕГЕНДА */
         #legend {
             position: absolute;
             top: 60px;
@@ -152,8 +158,11 @@
             font-size: 11px;
             z-index: 100;
             border: 1px solid #444;
-            min-width: 180px;
+            min-width: 200px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
+
         .legend-title {
             font-weight: bold;
             margin-bottom: 8px;
@@ -163,12 +172,14 @@
             border-bottom: 1px solid #444;
             padding-bottom: 4px;
         }
+
         .legend-item {
             display: flex;
             align-items: center;
             margin-bottom: 6px;
             gap: 8px;
         }
+
         .color-box {
             width: 14px;
             height: 14px;
@@ -176,14 +187,27 @@
             border: 1px solid rgba(255,255,255,0.3);
             flex-shrink: 0;
         }
+
         .legend-text {
             display: flex;
             justify-content: space-between;
             width: 100%;
+            font-size: 10px;
         }
-        .weight-range { color: #888; font-size: 10px; }
 
-        /* СЛАЙСЫ */
+        .combo-legend {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+        }
+
+        .combo-item {
+            font-size: 10px;
+            color: #888;
+            margin-bottom: 4px;
+            padding-left: 22px;
+        }
+
         #slice-panel {
             position: absolute;
             bottom: 20px;
@@ -198,16 +222,19 @@
             border: 1px solid #444;
             z-index: 100;
         }
+
         .slice-group {
             display: flex;
             flex-direction: column;
             gap: 5px;
         }
+
         .slice-group label {
             color: #aaa;
             font-size: 11px;
             text-transform: uppercase;
         }
+
         select {
             padding: 8px 12px;
             border-radius: 4px;
@@ -215,9 +242,10 @@
             background: #1a1a2e;
             color: white;
             font-size: 13px;
-            min-width: 130px;
+            min-width: 150px;
             cursor: pointer;
         }
+
         button {
             padding: 8px 16px;
             background: #e74c3c;
@@ -228,67 +256,116 @@
             font-weight: 600;
             margin-top: 15px;
         }
+
         button:hover { background: #c0392b; }
 
         #tooltip {
             position: absolute;
             background: rgba(0,0,0,0.9);
             color: white;
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
             font-size: 12px;
             pointer-events: none;
             display: none;
             z-index: 1000;
             border: 1px solid #555;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .tooltip-header {
+            font-weight: bold;
+            color: #64b5f6;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 4px;
+        }
+
+        .tooltip-row {
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .tooltip-label {
+            color: #888;
+        }
+
+        .tooltip-value {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .warning-box {
+            position: absolute;
+            bottom: 100px;
+            left: 10px;
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 11px;
             max-width: 250px;
+            display: none;
         }
     </style>
 </head>
 <body>
 
-<!-- ЭКРАН ВЫБОРА -->
 <div id="selection-screen">
     <div class="selection-title">Выберите торговую сеть</div>
     <div class="selection-subtitle">
-        У каждой сети свой набор доступных уровней категорий для построения охвата.<br>
-        Уровни географии специфичны для каждой торговой сети.
+        Куб весов охвата согласно AC-2904674-09 и AC-060426-06<br>
+        Отображаются только допустимые комбинации уровней категорий
     </div>
 
     <div class="chain-buttons">
         <div class="chain-btn tc5" onclick="selectChain('PYATEROCHKA')">
-            <div class="chain-name">Пятёрочка</div>
-            <div class="chain-type">ТС5</div>
+            <div class="chain-name">Пятёрочка (ТС5)</div>
+            <div class="chain-type">5 уровней географии • 7 уровней категорий + атрибуты</div>
             <div class="chain-levels">
-                <b>География (5):</b><br>
-                Территория → Макрорегион → Цен.кластер → Сбытовая → Магазин<br><br>
-                <b>Категории (14):</b><br>
-                УИ1 → Категория → УИ2 → ФК → УИ3 → УИ4 → Корзина → Баз/НеБаз → Сегмент → Бренд → СТМ → ЭТМ → Линейка → PLU
+                <b>Базовые уровни:</b><br>
+                УИ1 → Категория → УИ2 → ФК → УИ3 → УИ4 → Корзина → PLU<br><br>
+
+                <b>Доступные комбинации (Кат1 + Кат2):</b><br>
+                • УИ1 + [Баз/НеБаз, Корзина, СТМ, ЭТМ, Бренд]<br>
+                • Категория + [Баз/НеБаз, Корзина, СТМ, ЭТМ, Бренд]<br>
+                • УИ2-4, ФК + [Баз/НеБаз, Корзина, СТМ, ЭТМ, Бренд]<br>
+                • Корзина + [Баз/НеБаз, СТМ, ЭТМ, Бренд]<br>
+                • PLU — нет комбинаций (базовый только)
             </div>
         </div>
 
         <div class="chain-btn tcx" onclick="selectChain('PEREKRESTOK')">
-            <div class="chain-name">Перекрёсток</div>
-            <div class="chain-type">ТСХ</div>
+            <div class="chain-name">Перекрёсток (ТСХ)</div>
+            <div class="chain-type">5 уровней географии • 6 уровней категорий + атрибуты</div>
             <div class="chain-levels">
-                <b>География (5):</b><br>
-                Дивизион → Цен.кластер → Сбытовая → Канал сбыта → Магазин<br><br>
-                <b>Категории (12):</b><br>
-                Категория → УИ2 → ФК → УИ3 → УИ4 → Корзина → Сегмент → Бренд → СТМ → ЭТМ → Линейка → PLU
+                <b>Базовые уровни:</b><br>
+                Категория → УИ2 → ФК → УИ3 → УИ4 → Корзина → PLU<br><br>
+
+                <b>Доступные комбинации (Кат1 + Кат2):</b><br>
+                • Категория + [Корзина, СТМ, ЭТМ, Бренд]<br>
+                • УИ2-4, ФК + [Корзина, СТМ, ЭТМ, Бренд]<br>
+                • Корзина + [СТМ, ЭТМ, Бренд]<br>
+                • PLU — нет комбинаций (базовый только)<br><br>
+
+                <b>Особенность:</b> Нет Баз/НеБаз в ТСХ
             </div>
         </div>
     </div>
 </div>
 
-<!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
 <div id="app-container">
     <div id="info">
-        <h3 style="margin:0 0 8px 0">🎲 3D Cube</h3>
+        <h3 style="margin:0 0 8px 0">🎲 3D Coverage Cube</h3>
         <p style="margin:0; opacity:0.8">
-            ЛКМ - вращение<br>
-            ПКМ - сдвиг<br>
-            Колесо - зум<br>
-            Наведение - детали
+            ЛКМ — вращение<br>
+            ПКМ — сдвиг<br>
+            Колесо — зум<br>
+            Наведение — детали
         </p>
     </div>
 
@@ -297,55 +374,54 @@
         <button id="change-chain-btn" onclick="showSelection()">Сменить ТС</button>
     </div>
 
-    <!-- ЛЕГЕНДА -->
+    <div class="warning-box" id="warning-box">
+        ⚠️ Не все уровни имеют комбинации. PLU — только базовый охват.
+    </div>
+
     <div id="legend">
-        <div class="legend-title">Вес охвата</div>
+        <div class="legend-title">Типы охвата</div>
 
         <div class="legend-item">
-            <div class="color-box" style="background: #81c784;"></div>
-            <div class="legend-text"><span>Низкий</span><span class="weight-range">2-5</span></div>
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background: #fff176;"></div>
-            <div class="legend-text"><span>Средний</span><span class="weight-range">6-9</span></div>
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background: #ffb74d;"></div>
-            <div class="legend-text"><span>Высокий</span><span class="weight-range">10-13</span></div>
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background: #e57373;"></div>
-            <div class="legend-text"><span>Максимальный</span><span class="weight-range">14-17</span></div>
+            <div class="color-box" style="background: #4caf50;"></div>
+            <div class="legend-text"><span>Базовый (только Cat1)</span><span>вес 2-6</span></div>
         </div>
 
-        <div class="legend-title" style="margin-top:10px; border-top:1px solid #444; padding-top:8px;">
-            Комбинации
-        </div>
         <div class="legend-item">
-            <div class="color-box" style="background: #64b5f6; border: 2px dashed #1565c0;"></div>
-            <div class="legend-text"><span>Двухуровневая</span><span class="weight-range">mock=10</span></div>
+            <div class="color-box" style="background: #2196f3;"></div>
+            <div class="legend-text"><span>Комбинация (+ фильтр)</span><span>вес 10</span></div>
+        </div>
+
+        <div class="legend-item">
+            <div class="color-box" style="background: #ff9800;"></div>
+            <div class="legend-text"><span>География сужена</span><span>вес +1</span></div>
+        </div>
+
+        <div class="combo-legend">
+            <div class="legend-title">Доступные комбинации</div>
+            <div id="combo-list">
+                <!-- Заполняется динамически -->
+            </div>
         </div>
     </div>
 
-    <!-- СЛАЙСЫ -->
     <div id="slice-panel">
         <div class="slice-group">
-            <label>География (X)</label>
+            <label>Уровень географии (X)</label>
             <select id="geoSlice" onchange="applySlice()">
                 <option value="all">Все</option>
             </select>
         </div>
         <div class="slice-group">
-            <label>Категория 1 (Y)</label>
+            <label>Категория 1 — Базовый уровень (Y)</label>
             <select id="cat1Slice" onchange="applySlice()">
                 <option value="all">Все</option>
             </select>
         </div>
         <div class="slice-group">
-            <label>Категория 2 (Z)</label>
+            <label>Категория 2 — Фильтр (Z)</label>
             <select id="cat2Slice" onchange="applySlice()">
                 <option value="all">Все</option>
-                <option value="null">null (нет)</option>
+                <option value="base">Только базовые (без фильтра)</option>
             </select>
         </div>
         <button onclick="resetSlices()">Сбросить</button>
@@ -358,33 +434,49 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
-    // Обновленные конфигурации согласно документации AC-2904674-09 и AC-060426-06
+    // Конфигурации согласно AC-060426-06
     const tradeChains = {
         'PYATEROCHKA': {
             name: 'Пятёрочка',
             type: 'TC5',
             geo: ['Территория', 'Макрорегион', 'Цен.кластер', 'Сбытовая', 'Магазин'],
-            cat: ['УИ1', 'Категория', 'УИ2', 'ФК', 'УИ3', 'УИ4', 'Корзина', 'Баз/НеБаз', 'Сегмент', 'Бренд', 'СТМ', 'ЭТМ', 'Линейка', 'PLU'],
-            weights: [
-                [2,  2,  3,  4,  5,  5,  6,  7,  8,  9,  10, 11, 12, 13],
-                [3,  3,  4,  5,  6,  6,  7,  8,  9,  10, 11, 12, 13, 14],
-                [4,  4,  5,  6,  7,  7,  8,  9,  10, 11, 12, 13, 14, 15],
-                [5,  5,  6,  7,  8,  8,  9,  10, 11, 12, 13, 14, 15, 16],
-                [6,  6,  7,  8,  9,  9,  10, 11, 12, 13, 14, 15, 16, 17]
-            ]
+            // Базовые уровни категорий
+            catLevels: ['УИ1', 'Категория', 'УИ2', 'ФК', 'УИ3', 'УИ4', 'Корзина', 'PLU'],
+            // Допустимые комбинации: для каждого уровня 1 указаны доступные уровни 2 (фильтры)
+            // Согласно документу AC-060426-06 для ТС5
+            validCombinations: {
+                'УИ1': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'Категория': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'УИ2': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'ФК': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'УИ3': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'УИ4': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'Корзина': ['Баз/НеБаз', 'СТМ', 'ЭТМ', 'Бренд'], // Корзина не комбинируется с самой собой
+                'PLU': [] // Для PLU нет второго уровня
+            },
+            // Веса: базовый охват (просто уровень) + комбинации
+            // Базовый вес = 2 + geoIndex (0-4) → 2-6
+            // Комбинация = фиксированный вес 10 (как в документе)
+            baseWeight: (geoIndex) => 2 + geoIndex,
+            comboWeight: 10
         },
         'PEREKRESTOK': {
             name: 'Перекрёсток',
             type: 'TCX',
             geo: ['Дивизион', 'Цен.кластер', 'Сбытовая', 'Канал сбыта', 'Магазин'],
-            cat: ['Категория', 'УИ2', 'ФК', 'УИ3', 'УИ4', 'Корзина', 'Сегмент', 'Бренд', 'СТМ', 'ЭТМ', 'Линейка', 'PLU'],
-            weights: [
-                [2,  3,  4,  5,  5,  6,  7,  8,  9,  10, 11, 12],
-                [3,  4,  5,  6,  6,  7,  8,  9,  10, 11, 12, 13],
-                [4,  5,  6,  7,  7,  8,  9,  10, 11, 12, 13, 14],
-                [5,  6,  7,  8,  8,  9,  10, 11, 12, 13, 14, 15],
-                [6,  7,  8,  9,  9,  10, 11, 12, 13, 14, 15, 16]
-            ]
+            catLevels: ['Категория', 'УИ2', 'ФК', 'УИ3', 'УИ4', 'Корзина', 'PLU'],
+            // Для ТСХ нет Баз/НеБаз согласно таблице
+            validCombinations: {
+                'Категория': ['Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'УИ2': ['Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'ФК': ['Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'УИ3': ['Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'УИ4': ['Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
+                'Корзина': ['СТМ', 'ЭТМ', 'Бренд'], // Для Корзины в ТСХ нет Корзины как фильтра
+                'PLУ': [] // PLU нет комбинаций
+            },
+            baseWeight: (geoIndex) => 2 + geoIndex,
+            comboWeight: 10
         }
     };
 
@@ -394,37 +486,60 @@
     let raycaster, mouse;
     let hoveredCube = null;
 
-    const MOCK_COMBO_WEIGHT = 10;
-
-    // === ГЛОБАЛЬНЫЕ ФУНКЦИИ (для onclick) ===
+    // === ГЛОБАЛЬНЫЕ ФУНКЦИИ ===
 
     function selectChain(chainKey) {
         currentConfig = tradeChains[chainKey];
+
         document.getElementById('chain-name-text').textContent =
-            `${currentConfig.name} (${currentConfig.type}) — ${currentConfig.geo.length} ур. гео, ${currentConfig.cat.length} ур. кат.`;
+            `${currentConfig.name} (${currentConfig.type}) — ${currentConfig.geo.length} ур. гео`;
 
         document.getElementById('selection-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
+        document.getElementById('warning-box').style.display = 'block';
 
         if (!scene) {
             initThree();
         } else {
             rebuildScene();
         }
+
+        updateLegend();
     }
 
     function showSelection() {
         document.getElementById('selection-screen').style.display = 'flex';
         document.getElementById('app-container').style.display = 'none';
+        document.getElementById('warning-box').style.display = 'none';
+    }
+
+    function updateLegend() {
+        const comboList = document.getElementById('combo-list');
+        comboList.innerHTML = '';
+
+        for (const [cat1, cat2List] of Object.entries(currentConfig.validCombinations)) {
+            if (cat2List.length > 0) {
+                const div = document.createElement('div');
+                div.className = 'combo-item';
+                div.innerHTML = `<b>${cat1}</b> → ${cat2List.join(', ')}`;
+                comboList.appendChild(div);
+            } else {
+                const div = document.createElement('div');
+                div.className = 'combo-item';
+                div.style.color = '#666';
+                div.innerHTML = `<b>${cat1}</b> → нет комбинаций (только базовый)`;
+                comboList.appendChild(div);
+            }
+        }
     }
 
     function initThree() {
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x0f0f23);
-        scene.fog = new THREE.Fog(0x0f0f23, 30, 100);
+        scene.fog = new THREE.Fog(0x0f0f23, 20, 80);
 
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(25, 25, 25);
+        camera.position.set(30, 25, 30);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -433,6 +548,7 @@
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
+        controls.target.set(0, 5, 0);
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
@@ -453,249 +569,341 @@
     }
 
     function rebuildScene() {
-        cubes.forEach(c => scene.remove(c));
+        // Очистка сцены
+        cubes.forEach(c => {
+            scene.remove(c);
+            if (c.geometry) c.geometry.dispose();
+            if (c.material) c.material.dispose();
+        });
         cubes = [];
 
+        createAxes();
         createCubes();
         populateSelectors();
         resetSlices();
     }
 
+    function createAxes() {
+        // Создаем оси координат
+        const axisLength = Math.max(currentConfig.geo.length, currentConfig.catLevels.length) + 2;
+
+        const xGeo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(axisLength, 0, 0)
+        ]);
+        const xLine = new THREE.Line(xGeo, new THREE.LineBasicMaterial({ color: 0x4caf50 }));
+        scene.add(xLine);
+
+        // Подписи для географии (X)
+        currentConfig.geo.forEach((g, i) => {
+            const sprite = makeTextSprite(g, '#4caf50');
+            sprite.position.set(i + 0.5, -0.5, 0);
+            sprite.scale.set(2, 1, 1);
+            scene.add(sprite);
+        });
+
+        const yGeo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(0, axisLength, 0)
+        ]);
+        const yLine = new THREE.Line(yGeo, new THREE.LineBasicMaterial({ color: 0x2196f3 }));
+        scene.add(yLine);
+
+        // Подписи для категорий 1 (Y)
+        currentConfig.catLevels.forEach((c, i) => {
+            const sprite = makeTextSprite(c, '#2196f3');
+            sprite.position.set(-0.5, i + 0.5, 0);
+            sprite.scale.set(2, 1, 1);
+            scene.add(sprite);
+        });
+
+        const zGeo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(0, 0, 6)
+        ]);
+        const zLine = new THREE.Line(zGeo, new THREE.LineBasicMaterial({ color: 0xff9800 }));
+        scene.add(zLine);
+    }
+
+    function makeTextSprite(message, color) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 256;
+        canvas.height = 128;
+
+        ctx.font = 'Bold 24px Arial';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.fillText(message, 128, 64);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+        return new THREE.Sprite(spriteMaterial);
+    }
+
     function createCubes() {
-        const gCount = currentConfig.geo.length;
-        const cCount = currentConfig.cat.length;
-        const size = 0.8;
-        const spacing = 1.0;
-        const offsetX = -(gCount * spacing) / 2;
-        const offsetY = 0;
-        const offsetZ = -(cCount * spacing) / 2;
+        const boxGeo = new THREE.BoxGeometry(0.7, 0.7, 0.7);
+        const spacing = 1.2;
 
-        const axesMat = new THREE.LineBasicMaterial({ color: 0x444466 });
-        const xGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(offsetX, 0, offsetZ), new THREE.Vector3(offsetX + gCount*spacing, 0, offsetZ)]);
-        const yGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(offsetX, 0, offsetZ), new THREE.Vector3(offsetX, cCount*spacing, offsetZ)]);
-        const zGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(offsetX, 0, offsetZ), new THREE.Vector3(offsetX, 0, offsetZ + (cCount+1)*spacing)]);
+        // Для каждого уровня географии
+        currentConfig.geo.forEach((geoName, geoIdx) => {
+            const baseWeight = currentConfig.baseWeight(geoIdx);
 
-        scene.add(new THREE.Line(xGeo, axesMat));
-        scene.add(new THREE.Line(yGeo, new THREE.LineBasicMaterial({ color: 0x664444 })));
-        scene.add(new THREE.Line(zGeo, new THREE.LineBasicMaterial({ color: 0x446644 })));
+            // Для каждого уровня категории 1
+            currentConfig.catLevels.forEach((cat1Name, cat1Idx) => {
 
-        const boxGeo = new THREE.BoxGeometry(size, size, size);
+                // 1. Базовый куб (только Cat1, без Cat2)
+                // Позиция: X = geo, Y = cat1, Z = 0
+                const baseMat = new THREE.MeshLambertMaterial({
+                    color: 0x4caf50,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                const baseCube = new THREE.Mesh(boxGeo, baseMat);
+                baseCube.position.set(
+                    geoIdx * spacing,
+                    cat1Idx * spacing,
+                    0
+                );
 
-        for (let g = 0; g < gCount; g++) {
-            for (let c1 = 0; c1 < cCount; c1++) {
-                const w = currentConfig.weights[g][c1];
-                const color = w <= 5 ? 0x81c784 : w <= 9 ? 0xfff176 : w <= 13 ? 0xffb74d : 0xe57373;
-
-                const mat = new THREE.MeshLambertMaterial({ color: color });
-                const cube = new THREE.Mesh(boxGeo, mat);
-                cube.position.set(offsetX + g * spacing, offsetY + c1 * spacing, offsetZ);
-
-                cube.userData = {
+                baseCube.userData = {
                     type: 'base',
-                    geo: g, cat1: c1, cat2: -1,
-                    geoName: currentConfig.geo[g],
-                    cat1Name: currentConfig.cat[c1],
-                    cat2Name: 'null',
-                    weight: w
+                    geo: geoIdx,
+                    cat1: cat1Idx,
+                    cat2: null,
+                    geoName: geoName,
+                    cat1Name: cat1Name,
+                    cat2Name: null,
+                    weight: baseWeight,
+                    isValid: true
                 };
 
-                addLabel(cube, w);
-                scene.add(cube);
-                cubes.push(cube);
+                addLabel(baseCube, baseWeight, false);
+                scene.add(baseCube);
+                cubes.push(baseCube);
 
-                for (let c2 = 0; c2 < cCount; c2++) {
-                    if (c1 === c2) continue;
+                // 2. Комбинации (Cat1 + Cat2/Filter)
+                // Проверяем, какие фильтры доступны для этого уровня Cat1
+                const availableFilters = currentConfig.validCombinations[cat1Name] || [];
 
-                    const comboWeight = MOCK_COMBO_WEIGHT;
-
-                    const mat2 = new THREE.MeshLambertMaterial({
-                        color: 0x64b5f6,
+                availableFilters.forEach((filterName, filterIdx) => {
+                    // Z координата зависит от индекса фильтра
+                    const comboMat = new THREE.MeshLambertMaterial({
+                        color: 0x2196f3,
                         transparent: true,
                         opacity: 0.7
                     });
 
-                    const cube2 = new THREE.Mesh(boxGeo, mat2);
-                    cube2.position.set(offsetX + g * spacing, offsetY + c1 * spacing, offsetZ + (c2 + 1) * spacing);
+                    const comboCube = new THREE.Mesh(boxGeo, comboMat);
+                    comboCube.position.set(
+                        geoIdx * spacing,
+                        cat1Idx * spacing,
+                        (filterIdx + 1) * spacing // Z начинается с 1 (0 занят базовым)
+                    );
 
-                    cube2.userData = {
+                    comboCube.userData = {
                         type: 'combo',
-                        geo: g, cat1: c1, cat2: c2,
-                        geoName: currentConfig.geo[g],
-                        cat1Name: currentConfig.cat[c1],
-                        cat2Name: currentConfig.cat[c2],
-                        weight: comboWeight,
-                        isMock: true
+                        geo: geoIdx,
+                        cat1: cat1Idx,
+                        cat2: filterIdx,
+                        geoName: geoName,
+                        cat1Name: cat1Name,
+                        cat2Name: filterName,
+                        weight: currentConfig.comboWeight,
+                        filterType: filterName,
+                        isValid: true
                     };
 
-                    addLabel(cube2, comboWeight, true);
-                    scene.add(cube2);
-                    cubes.push(cube2);
-                }
-            }
-        }
+                    addLabel(comboCube, currentConfig.comboWeight, true);
+                    scene.add(comboCube);
+                    cubes.push(comboCube);
+                });
+            });
+        });
     }
 
-    function addLabel(cube, text, isCombo = false) {
+    function addLabel(cube, text, isCombo) {
         const canvas = document.createElement('canvas');
         canvas.width = 64;
         canvas.height = 64;
         const ctx = canvas.getContext('2d');
 
         if (isCombo) {
-            ctx.fillStyle = '#1976d2';
+            ctx.fillStyle = '#1565c0';
             ctx.fillRect(0, 0, 64, 64);
             ctx.fillStyle = 'white';
         } else {
-            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.fillStyle = '#2e7d32';
             ctx.fillRect(0, 0, 64, 64);
-            ctx.fillStyle = 'black';
+            ctx.fillStyle = 'white';
         }
 
-        ctx.font = 'bold 24px Arial';
+        ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-
-        if (text > 9) {
-            ctx.font = 'bold 20px Arial';
-        }
-
         ctx.fillText(text, 32, 32);
 
         const texture = new THREE.CanvasTexture(canvas);
         const spriteMat = new THREE.SpriteMaterial({ map: texture });
         const sprite = new THREE.Sprite(spriteMat);
-        sprite.scale.set(0.5, 0.5, 0.5);
-        sprite.position.y = 0.6;
+        sprite.scale.set(0.6, 0.6, 0.6);
+        sprite.position.y = 0.5;
         cube.add(sprite);
     }
 
     function populateSelectors() {
-        const geoSel = document.getElementById('geoSlice');
-        const cat1Sel = document.getElementById('cat1Slice');
-        const cat2Sel = document.getElementById('cat2Slice');
+    const geoSel = document.getElementById('geoSlice');
+    const cat1Sel = document.getElementById('cat1Slice');
+    const cat2Sel = document.getElementById('cat2Slice');
 
-        const geoVal = geoSel.value;
-        const cat1Val = cat1Sel.value;
-        const cat2Val = cat2Sel.value;
+    // Сохраняем текущие значения
+    const geoVal = geoSel.value;
+    const cat1Val = cat1Sel.value;
+    const cat2Val = cat2Sel.value;
 
-        geoSel.innerHTML = '<option value="all">Все</option>';
-        cat1Sel.innerHTML = '<option value="all">Все</option>';
-        cat2Sel.innerHTML = '<option value="all">Все</option><option value="null">null (нет)</option>';
+    // Заполняем географию (X)
+    geoSel.innerHTML = '<option value="all">Все территории</option>';
+    currentConfig.geo.forEach((g, i) => {
+        geoSel.innerHTML += `<option value="${i}">${g}</option>`;
+    });
 
-        currentConfig.geo.forEach((g, i) => {
-            geoSel.innerHTML += `<option value="${i}">${g}</option>`;
+    // Заполняем категорию 1 (Y) - базовые уровни
+    cat1Sel.innerHTML = '<option value="all">Все уровни категорий</option>';
+    currentConfig.catLevels.forEach((c, i) => {
+        const hasCombos = currentConfig.validCombinations[c] && currentConfig.validCombinations[c].length > 0;
+        const suffix = hasCombos ? ` (+${currentConfig.validCombinations[c].length} фильтров)` : ' (только базовый)';
+        cat1Sel.innerHTML += `<option value="${i}">${c}${suffix}</option>`;
+    });
+
+    // Заполняем категорию 2 (Z) - фильтры/комбинации
+    cat2Sel.innerHTML = '<option value="all">Все варианты</option>';
+    cat2Sel.innerHTML += '<option value="base">Только базовые (без фильтра)</option>';
+
+    // Собираем все уникальные фильтры из конфига
+    const allFilters = new Set();
+    Object.values(currentConfig.validCombinations).forEach(filters => {
+        filters.forEach(f => allFilters.add(f));
+    });
+
+    // Группируем по типу фильтра
+    if (allFilters.size > 0) {
+        cat2Sel.innerHTML += '<optgroup label="Доступные фильтры:">';
+        Array.from(allFilters).sort().forEach(filter => {
+            cat2Sel.innerHTML += `<option value="${filter}">${filter}</option>`;
         });
-
-        currentConfig.cat.forEach((c, i) => {
-            cat1Sel.innerHTML += `<option value="${i}">${c}</option>`;
-            cat2Sel.innerHTML += `<option value="${i}">${c}</option>`;
-        });
-
-        geoSel.value = geoVal;
-        cat1Sel.value = cat1Val;
-        cat2Sel.value = cat2Val;
+        cat2Sel.innerHTML += '</optgroup>';
     }
 
-    function applySlice() {
-        const gVal = document.getElementById('geoSlice').value;
-        const c1Val = document.getElementById('cat1Slice').value;
-        const c2Val = document.getElementById('cat2Slice').value;
+    // Восстанавливаем значения если возможно
+    if (geoVal && geoSel.querySelector(`option[value="${geoVal}"]`)) geoSel.value = geoVal;
+    if (cat1Val && cat1Sel.querySelector(`option[value="${cat1Val}"]`)) cat1Sel.value = cat1Val;
+    if (cat2Val && cat2Sel.querySelector(`option[value="${cat2Val}"]`)) cat2Sel.value = cat2Val;
+}
 
-        cubes.forEach(cube => {
-            const d = cube.userData;
-            let visible = true;
+function applySlice() {
+    const geoVal = document.getElementById('geoSlice').value;
+    const cat1Val = document.getElementById('cat1Slice').value;
+    const cat2Val = document.getElementById('cat2Slice').value;
 
-            if (gVal !== 'all' && d.geo != gVal) visible = false;
-            if (c1Val !== 'all' && d.cat1 != c1Val) visible = false;
+    cubes.forEach(cube => {
+        const d = cube.userData;
+        let visible = true;
 
-            if (c2Val === 'null') {
-                if (d.cat2 !== -1) visible = false;
-            } else if (c2Val !== 'all') {
-                if (d.cat2 != c2Val) visible = false;
-            }
+        // Фильтр по географии (X)
+        if (geoVal !== 'all' && d.geo != geoVal) visible = false;
 
-            cube.visible = visible;
-        });
+        // Фильтр по категории 1 (Y)
+        if (cat1Val !== 'all' && d.cat1 != cat1Val) visible = false;
+
+        // Фильтр по категории 2 / фильтру (Z)
+        if (cat2Val === 'base') {
+            // Только базовые охваты (без фильтра Cat2)
+            if (d.type !== 'base') visible = false;
+        } else if (cat2Val !== 'all') {
+            // Конкретный фильтр (Баз/НеБаз, Корзина, СТМ и т.д.)
+            if (d.type !== 'combo' || d.cat2Name !== cat2Val) visible = false;
+        }
+
+        cube.visible = visible;
+    });
+}
+
+function resetSlices() {
+    document.getElementById('geoSlice').value = 'all';
+    document.getElementById('cat1Slice').value = 'all';
+    document.getElementById('cat2Slice').value = 'all';
+    applySlice();
+}
+
+function onMouseMove(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    // Только видимые кубы
+    const visibleCubes = cubes.filter(c => c.visible);
+    const intersects = raycaster.intersectObjects(visibleCubes);
+
+    const tooltip = document.getElementById('tooltip');
+
+    if (intersects.length > 0) {
+        const object = intersects[0].object;
+
+        if (hoveredCube === object) {
+            tooltip.style.left = event.clientX + 15 + 'px';
+            tooltip.style.top = event.clientY + 15 + 'px';
+            return;
+        }
+
+        hoveredCube = object;
+        const d = object.userData;
+
+        tooltip.style.display = 'block';
+        tooltip.style.left = event.clientX + 15 + 'px';
+        tooltip.style.top = event.clientY + 15 + 'px';
+
+        if (d.type === 'base') {
+            const hasFilters = currentConfig.validCombinations[d.cat1Name] && currentConfig.validCombinations[d.cat1Name].length > 0;
+            tooltip.innerHTML = `
+                <div class="tooltip-header">Базовый охват</div>
+                <div class="tooltip-row"><span class="tooltip-label">Торговая сеть:</span><span class="tooltip-value">${currentConfig.name}</span></div>
+                <div class="tooltip-row"><span class="tooltip-label">География:</span><span class="tooltip-value">${d.geoName}</span></div>
+                <div class="tooltip-row"><span class="tooltip-label">Уровень категории:</span><span class="tooltip-value">${d.cat1Name}</span></div>
+                <div class="tooltip-row"><span class="tooltip-label">Диапазон:</span><span class="tooltip-value">Все значения уровня</span></div>
+                <div class="tooltip-row"><span class="tooltip-label">Вес охвата:</span><span class="tooltip-value" style="color:#4caf50">${d.weight}</span></div>
+                ${hasFilters ? '<div style="margin-top:8px;font-size:10px;color:#888;">Доступны фильтры: ' + currentConfig.validCombinations[d.cat1Name].join(', ') + '</div>' : ''}
+            `;
+        } else {
+            tooltip.innerHTML = `
+                <div class="tooltip-header">Охват с фильтром (Комбинация)</div>
+                <div class="tooltip-row"><span class="tooltip-label">Торговая сеть:</span><span class="tooltip-value">${currentConfig.name}</span></div>
+                <div class="tooltip-row"><span class="tooltip-label">География:</span><span class="tooltip-value">${d.geoName}</span></div>
+                <div class="tooltip-row"><span class="tooltip-label">Уровень 1:</span><span class="tooltip-value">${d.cat1Name}</span></div>
+                <div class="tooltip-row"><span class="tooltip-label">Фильтр (Уровень 2):</span><span class="tooltip-value" style="color:#2196f3">${d.cat2Name}</span></div>
+                <div class="tooltip-row"><span class="tooltip-label">Логика:</span><span class="tooltip-value">${d.cat1Name} = значение + ${d.cat2Name}</span></div>
+                <div class="tooltip-row"><span class="tooltip-label">Вес охвата:</span><span class="tooltip-value" style="color:#2196f3">${d.weight} (фикс.)</span></div>
+            `;
+        }
+    } else {
+        if (hoveredCube) {
+            tooltip.style.display = 'none';
+            hoveredCube = null;
+        }
     }
+}
 
-    function resetSlices() {
-        document.getElementById('geoSlice').value = 'all';
-        document.getElementById('cat1Slice').value = 'all';
-        document.getElementById('cat2Slice').value = 'all';
-        applySlice();
-    }
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
 
-    // ИСПРАВЛЕННАЯ функция onMouseMove - учитывает только видимые кубы и проверяет hoveredCube
-    function onMouseMove(event) {
-       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-       raycaster.setFromCamera(mouse, camera);
-
-       // Получаем только видимые кубы для проверки пересечений
-       const visibleCubes = cubes.filter(c => c.visible);
-       const intersects = raycaster.intersectObjects(visibleCubes);
-
-       const tooltip = document.getElementById('tooltip');
-
-       if (intersects.length > 0) {
-           const object = intersects[0].object;
-
-           // Если мы всё ещё на том же кубе — только обновляем позицию
-           if (hoveredCube === object) {
-               tooltip.style.left = event.clientX + 15 + 'px';
-               tooltip.style.top = event.clientY + 15 + 'px';
-               return;
-           }
-
-           // Новый куб под курсором
-           hoveredCube = object;
-           const d = object.userData;
-
-           tooltip.style.display = 'block';
-           tooltip.style.left = event.clientX + 15 + 'px';
-           tooltip.style.top = event.clientY + 15 + 'px';
-
-           if (d.type === 'base') {
-               tooltip.innerHTML = `
-                   <b>Базовый охват</b><br>
-                   География: ${d.geoName}<br>
-                   Категория: ${d.cat1Name}<br>
-                   Кат2: null<br>
-                   <b>Вес: ${d.weight}</b>
-               `;
-           } else {
-               tooltip.innerHTML = `
-                   <b>Двухуровневая комбинация</b><br>
-                   География: ${d.geoName}<br>
-                   Кат1: ${d.cat1Name}<br>
-                   Кат2: ${d.cat2Name}<br>
-                   <b>Вес: ${d.weight}</b> <span style="opacity:0.7; font-size:11px">(mock)</span>
-               `;
-           }
-       } else {
-           // Курсор ушёл с куба или нет пересечений с видимыми кубами
-           if (hoveredCube) {
-               tooltip.style.display = 'none';
-               hoveredCube = null;
-           }
-       }
-   }
-
-   function onWindowResize() {
-       camera.aspect = window.innerWidth / window.innerHeight;
-       camera.updateProjectionMatrix();
-       renderer.setSize(window.innerWidth, window.innerHeight);
-   }
-
-   function animate() {
-       requestAnimationFrame(animate);
-       controls.update();
-       renderer.render(scene, camera);
-   }
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+}
 </script>
 </body>
 </html>
-
-
-
