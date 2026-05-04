@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Coverage Cube - Trade Chain Selector</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0f23;
+        }
+
+        /* ЭКРАН ВЫБОРА ТС */
+        #selection-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+        }
+
+        .selection-title {
+            font-size: 32px;
+            margin-bottom: 40px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(100, 181, 246, 0.5);
+        }
+
+        .selection-subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 30px;
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .chain-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .chain-btn {
+            width: 220px;
+            padding: 30px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #444;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .chain-btn:hover {
+            background: rgba(100, 181, 246, 0.1);
+            border-color: #64b5f6;
+            transform: translateY(-5px);
+        }
+
+        .chain-btn.tc5 { border-color: #81c784; }
+        .chain-btn.tc5:hover { box-shadow: 0 0 30px rgba(129, 199, 132, 0.3); }
+
+        .chain-btn.tcx { border-color: #64b5f6; }
+        .chain-btn.tcx:hover { box-shadow: 0 0 30px rgba(100, 181, 246, 0.3); }
+
+        .chain-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .chain-type {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+
+        .chain-levels {
+            font-size: 11px;
+            color: #888;
+            line-height: 1.5;
+            text-align: left;
+            padding: 0 10px;
+        }
+
+        /* ОСНОВНОЙ ИНТЕРФЕЙС (изначально скрыт) */
+        #app-container {
+            display: none;
+            width: 100%;
+            height: 100vh;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            background: rgba(0,0,0,0.6);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #current-chain {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 15px;
+            border-radius: 6px;
+            color: white;
+            z-index: 100;
+            border-left: 4px solid #64b5f6;
+        }
+
+        #change-chain-btn {
+            margin-left: 15px;
+            padding: 4px 10px;
+            background: #444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        #change-chain-btn:hover { background: #666; }
+
+        /* ЛЕГЕНДА */
+        #legend {
+            position: absolute;
+            top: 60px;
+            right: 10px;
+            background: rgba(0,0,0,0.75);
+            padding: 12px;
+            border-radius: 6px;
+            color: white;
+            font-size: 11px;
+            z-index: 100;
+            border: 1px solid #444;
+            min-width: 180px;
+        }
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #aaa;
+            text-transform: uppercase;
+            font-size: 10px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 4px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            gap: 8px;
+        }
+        .color-box {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid rgba(255,255,255,0.3);
+            flex-shrink: 0;
+        }
+        .legend-text {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .weight-range { color: #888; font-size: 10px; }
+
+        /* СЛАЙСЫ */
+        #slice-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 30, 40, 0.95);
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            border: 1px solid #444;
+            z-index: 100;
+        }
+        .slice-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .slice-group label {
+            color: #aaa;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        select {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #1a1a2e;
+            color: white;
+            font-size: 13px;
+            min-width: 130px;
+            cursor: pointer;
+        }
+        button {
+            padding: 8px 16px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        button:hover { background: #c0392b; }
+
+        #tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+            border: 1px solid #555;
+            max-width: 250px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ЭКРАН ВЫБОРА -->
+<div id="selection-screen">
+    <div class="selection-title">Выберите торговую сеть</div>
+    <div class="selection-subtitle">
+        У каждой сети свой набор доступных уровней категорий для построения охвата.<br>
+        Уровни географии специфичны для каждой торговой сети.
+    </div>
+
+    <div class="chain-buttons">
+        <div class="chain-btn tc5" onclick="selectChain('PYATEROCHKA')">
+            <div class="chain-name">Пятёрочка</div>
+            <div class="chain-type">ТС5</div>
+            <div class="chain-levels">
+                <b>География (5):</b><br>
+                Территория → Макрорегион → Цен.кластер → Сбытовая → Магазин<br><br>
+                <b>Категории (14):</b><br>
+                УИ1 → Категория → УИ2 → ФК → УИ3 → УИ4 → Корзина → Баз/НеБаз → Сегмент → Бренд → СТМ → ЭТМ → Линейка → PLU
+            </div>
+        </div>
+
+        <div class="chain-btn tcx" onclick="selectChain('PEREKRESTOK')">
+            <div class="chain-name">Перекрёсток</div>
+            <div class="chain-type">ТСХ</div>
+            <div class="chain-levels">
+                <b>География (5):</b><br>
+                Дивизион → Цен.кластер → Сбытовая → Канал сбыта → Магазин<br><br>
+                <b>Категории (12):</b><br>
+                Категория → УИ2 → ФК → УИ3 → УИ4 → Корзина → Сегмент → Бренд → СТМ → ЭТМ → Линейка → PLU
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
+<div id="app-container">
+    <div id="info">
+        <h3 style="margin:0 0 8px 0">🎲 3D Cube</h3>
+        <p style="margin:0; opacity:0.8">
+            ЛКМ - вращение<br>
+            ПКМ - сдвиг<br>
+            Колесо - зум<br>
+            Наведение - детали
+        </p>
+    </div>
+
+    <div id="current-chain">
+        <span id="chain-name-text">Не выбрано</span>
+        <button id="change-chain-btn" onclick="showSelection()">Сменить ТС</button>
+    </div>
+
+    <!-- ЛЕГЕНДА -->
+    <div id="legend">
+        <div class="legend-title">Вес охвата</div>
+
+        <div class="legend-item">
+            <div class="color-box" style="background: #81c784;"></div>
+            <div class="legend-text"><span>Низкий</span><span class="weight-range">2-5</span></div>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background: #fff176;"></div>
+            <div class="legend-text"><span>Средний</span><span class="weight-range">6-9</span></div>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background: #ffb74d;"></div>
+            <div class="legend-text"><span>Высокий</span><span class="weight-range">10-13</span></div>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background: #e57373;"></div>
+            <div class="legend-text"><span>Максимальный</span><span class="weight-range">14-17</span></div>
+        </div>
+
+        <div class="legend-title" style="margin-top:10px; border-top:1px solid #444; padding-top:8px;">
+            Комбинации
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background: #64b5f6; border: 2px dashed #1565c0;"></div>
+            <div class="legend-text"><span>Двухуровневая</span><span class="weight-range">mock=10</span></div>
+        </div>
+    </div>
+
+    <!-- СЛАЙСЫ -->
+    <div id="slice-panel">
+        <div class="slice-group">
+            <label>География (X)</label>
+            <select id="geoSlice" onchange="applySlice()">
+                <option value="all">Все</option>
+            </select>
+        </div>
+        <div class="slice-group">
+            <label>Категория 1 (Y)</label>
+            <select id="cat1Slice" onchange="applySlice()">
+                <option value="all">Все</option>
+            </select>
+        </div>
+        <div class="slice-group">
+            <label>Категория 2 (Z)</label>
+            <select id="cat2Slice" onchange="applySlice()">
+                <option value="all">Все</option>
+                <option value="null">null (нет)</option>
+            </select>
+        </div>
+        <button onclick="resetSlices()">Сбросить</button>
+    </div>
+
+    <div id="tooltip"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+    // Обновленные конфигурации согласно документации AC-2904674-09 и AC-060426-06
+    const tradeChains = {
+        'PYATEROCHKA': {
+            name: 'Пятёрочка',
+            type: 'TC5',
+            geo: ['Территория', 'Макрорегион', 'Цен.кластер', 'Сбытовая', 'Магазин'],
+            cat: ['УИ1', 'Категория', 'УИ2', 'ФК', 'УИ3', 'УИ4', 'Корзина', 'Баз/НеБаз', 'Сегмент', 'Бренд', 'СТМ', 'ЭТМ', 'Линейка', 'PLU'],
+            weights: [
+                [2,  2,  3,  4,  5,  5,  6,  7,  8,  9,  10, 11, 12, 13],
+                [3,  3,  4,  5,  6,  6,  7,  8,  9,  10, 11, 12, 13, 14],
+                [4,  4,  5,  6,  7,  7,  8,  9,  10, 11, 12, 13, 14, 15],
+                [5,  5,  6,  7,  8,  8,  9,  10, 11, 12, 13, 14, 15, 16],
+                [6,  6,  7,  8,  9,  9,  10, 11, 12, 13, 14, 15, 16, 17]
+            ]
+        },
+        'PEREKRESTOK': {
+            name: 'Перекрёсток',
+            type: 'TCX',
+            geo: ['Дивизион', 'Цен.кластер', 'Сбытовая', 'Канал сбыта', 'Магазин'],
+            cat: ['Категория', 'УИ2', 'ФК', 'УИ3', 'УИ4', 'Корзина', 'Сегмент', 'Бренд', 'СТМ', 'ЭТМ', 'Линейка', 'PLU'],
+            weights: [
+                [2,  3,  4,  5,  5,  6,  7,  8,  9,  10, 11, 12],
+                [3,  4,  5,  6,  6,  7,  8,  9,  10, 11, 12, 13],
+                [4,  5,  6,  7,  7,  8,  9,  10, 11, 12, 13, 14],
+                [5,  6,  7,  8,  8,  9,  10, 11, 12, 13, 14, 15],
+                [6,  7,  8,  9,  9,  10, 11, 12, 13, 14, 15, 16]
+            ]
+        }
+    };
+
+    let currentConfig = null;
+    let scene, camera, renderer, controls;
+    let cubes = [];
+    let raycaster, mouse;
+    let hoveredCube = null;
+
+    const MOCK_COMBO_WEIGHT = 10;
+
+    // === ГЛОБАЛЬНЫЕ ФУНКЦИИ (для onclick) ===
+
+    function selectChain(chainKey) {
+        currentConfig = tradeChains[chainKey];
+        document.getElementById('chain-name-text').textContent =
+            `${currentConfig.name} (${currentConfig.type}) — ${currentConfig.geo.length} ур. гео, ${currentConfig.cat.length} ур. кат.`;
+
+        document.getElementById('selection-screen').style.display = 'none';
+        document.getElementById('app-container').style.display = 'block';
+
+        if (!scene) {
+            initThree();
+        } else {
+            rebuildScene();
+        }
+    }
+
+    function showSelection() {
+        document.getElementById('selection-screen').style.display = 'flex';
+        document.getElementById('app-container').style.display = 'none';
+    }
+
+    function initThree() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0f0f23);
+        scene.fog = new THREE.Fog(0x0f0f23, 30, 100);
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(25, 25, 25);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('app-container').appendChild(renderer.domElement);
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
+        dirLight.position.set(10, 20, 10);
+        scene.add(dirLight);
+
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+
+        rebuildScene();
+
+        window.addEventListener('resize', onWindowResize);
+        window.addEventListener('mousemove', onMouseMove);
+
+        animate();
+    }
+
+    function rebuildScene() {
+        cubes.forEach(c => scene.remove(c));
+        cubes = [];
+
+        createCubes();
+        populateSelectors();
+        resetSlices();
+    }
+
+    function createCubes() {
+        const gCount = currentConfig.geo.length;
+        const cCount = currentConfig.cat.length;
+        const size = 0.8;
+        const spacing = 1.0;
+        const offsetX = -(gCount * spacing) / 2;
+        const offsetY = 0;
+        const offsetZ = -(cCount * spacing) / 2;
+
+        const axesMat = new THREE.LineBasicMaterial({ color: 0x444466 });
+        const xGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(offsetX, 0, offsetZ), new THREE.Vector3(offsetX + gCount*spacing, 0, offsetZ)]);
+        const yGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(offsetX, 0, offsetZ), new THREE.Vector3(offsetX, cCount*spacing, offsetZ)]);
+        const zGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(offsetX, 0, offsetZ), new THREE.Vector3(offsetX, 0, offsetZ + (cCount+1)*spacing)]);
+
+        scene.add(new THREE.Line(xGeo, axesMat));
+        scene.add(new THREE.Line(yGeo, new THREE.LineBasicMaterial({ color: 0x664444 })));
+        scene.add(new THREE.Line(zGeo, new THREE.LineBasicMaterial({ color: 0x446644 })));
+
+        const boxGeo = new THREE.BoxGeometry(size, size, size);
+
+        for (let g = 0; g < gCount; g++) {
+            for (let c1 = 0; c1 < cCount; c1++) {
+                const w = currentConfig.weights[g][c1];
+                const color = w <= 5 ? 0x81c784 : w <= 9 ? 0xfff176 : w <= 13 ? 0xffb74d : 0xe57373;
+
+                const mat = new THREE.MeshLambertMaterial({ color: color });
+                const cube = new THREE.Mesh(boxGeo, mat);
+                cube.position.set(offsetX + g * spacing, offsetY + c1 * spacing, offsetZ);
+
+                cube.userData = {
+                    type: 'base',
+                    geo: g, cat1: c1, cat2: -1,
+                    geoName: currentConfig.geo[g],
+                    cat1Name: currentConfig.cat[c1],
+                    cat2Name: 'null',
+                    weight: w
+                };
+
+                addLabel(cube, w);
+                scene.add(cube);
+                cubes.push(cube);
+
+                for (let c2 = 0; c2 < cCount; c2++) {
+                    if (c1 === c2) continue;
+
+                    const comboWeight = MOCK_COMBO_WEIGHT;
+
+                    const mat2 = new THREE.MeshLambertMaterial({
+                        color: 0x64b5f6,
+                        transparent: true,
+                        opacity: 0.7
+                    });
+
+                    const cube2 = new THREE.Mesh(boxGeo, mat2);
+                    cube2.position.set(offsetX + g * spacing, offsetY + c1 * spacing, offsetZ + (c2 + 1) * spacing);
+
+                    cube2.userData = {
+                        type: 'combo',
+                        geo: g, cat1: c1, cat2: c2,
+                        geoName: currentConfig.geo[g],
+                        cat1Name: currentConfig.cat[c1],
+                        cat2Name: currentConfig.cat[c2],
+                        weight: comboWeight,
+                        isMock: true
+                    };
+
+                    addLabel(cube2, comboWeight, true);
+                    scene.add(cube2);
+                    cubes.push(cube2);
+                }
+            }
+        }
+    }
+
+    function addLabel(cube, text, isCombo = false) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+
+        if (isCombo) {
+            ctx.fillStyle = '#1976d2';
+            ctx.fillRect(0, 0, 64, 64);
+            ctx.fillStyle = 'white';
+        } else {
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.fillRect(0, 0, 64, 64);
+            ctx.fillStyle = 'black';
+        }
+
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        if (text > 9) {
+            ctx.font = 'bold 20px Arial';
+        }
+
+        ctx.fillText(text, 32, 32);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMat = new THREE.SpriteMaterial({ map: texture });
+        const sprite = new THREE.Sprite(spriteMat);
+        sprite.scale.set(0.5, 0.5, 0.5);
+        sprite.position.y = 0.6;
+        cube.add(sprite);
+    }
+
+    function populateSelectors() {
+        const geoSel = document.getElementById('geoSlice');
+        const cat1Sel = document.getElementById('cat1Slice');
+        const cat2Sel = document.getElementById('cat2Slice');
+
+        const geoVal = geoSel.value;
+        const cat1Val = cat1Sel.value;
+        const cat2Val = cat2Sel.value;
+
+        geoSel.innerHTML = '<option value="all">Все</option>';
+        cat1Sel.innerHTML = '<option value="all">Все</option>';
+        cat2Sel.innerHTML = '<option value="all">Все</option><option value="null">null (нет)</option>';
+
+        currentConfig.geo.forEach((g, i) => {
+            geoSel.innerHTML += `<option value="${i}">${g}</option>`;
+        });
+
+        currentConfig.cat.forEach((c, i) => {
+            cat1Sel.innerHTML += `<option value="${i}">${c}</option>`;
+            cat2Sel.innerHTML += `<option value="${i}">${c}</option>`;
+        });
+
+        geoSel.value = geoVal;
+        cat1Sel.value = cat1Val;
+        cat2Sel.value = cat2Val;
+    }
+
+    function applySlice() {
+        const gVal = document.getElementById('geoSlice').value;
+        const c1Val = document.getElementById('cat1Slice').value;
+        const c2Val = document.getElementById('cat2Slice').value;
+
+        cubes.forEach(cube => {
+            const d = cube.userData;
+            let visible = true;
+
+            if (gVal !== 'all' && d.geo != gVal) visible = false;
+            if (c1Val !== 'all' && d.cat1 != c1Val) visible = false;
+
+            if (c2Val === 'null') {
+                if (d.cat2 !== -1) visible = false;
+            } else if (c2Val !== 'all') {
+                if (d.cat2 != c2Val) visible = false;
+            }
+
+            cube.visible = visible;
+        });
+    }
+
+    function resetSlices() {
+        document.getElementById('geoSlice').value = 'all';
+        document.getElementById('cat1Slice').value = 'all';
+        document.getElementById('cat2Slice').value = 'all';
+        applySlice();
+    }
+
+    // ИСПРАВЛЕННАЯ функция onMouseMove - учитывает только видимые кубы и проверяет hoveredCube
+    function onMouseMove(event) {
+       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+       raycaster.setFromCamera(mouse, camera);
+
+       // Получаем только видимые кубы для проверки пересечений
+       const visibleCubes = cubes.filter(c => c.visible);
+       const intersects = raycaster.intersectObjects(visibleCubes);
+
+       const tooltip = document.getElementById('tooltip');
+
+       if (intersects.length > 0) {
+           const object = intersects[0].object;
+
+           // Если мы всё ещё на том же кубе — только обновляем позицию
+           if (hoveredCube === object) {
+               tooltip.style.left = event.clientX + 15 + 'px';
+               tooltip.style.top = event.clientY + 15 + 'px';
+               return;
+           }
+
+           // Новый куб под курсором
+           hoveredCube = object;
+           const d = object.userData;
+
+           tooltip.style.display = 'block';
+           tooltip.style.left = event.clientX + 15 + 'px';
+           tooltip.style.top = event.clientY + 15 + 'px';
+
+           if (d.type === 'base') {
+               tooltip.innerHTML = `
+                   <b>Базовый охват</b><br>
+                   География: ${d.geoName}<br>
+                   Категория: ${d.cat1Name}<br>
+                   Кат2: null<br>
+                   <b>Вес: ${d.weight}</b>
+               `;
+           } else {
+               tooltip.innerHTML = `
+                   <b>Двухуровневая комбинация</b><br>
+                   География: ${d.geoName}<br>
+                   Кат1: ${d.cat1Name}<br>
+                   Кат2: ${d.cat2Name}<br>
+                   <b>Вес: ${d.weight}</b> <span style="opacity:0.7; font-size:11px">(mock)</span>
+               `;
+           }
+       } else {
+           // Курсор ушёл с куба или нет пересечений с видимыми кубами
+           if (hoveredCube) {
+               tooltip.style.display = 'none';
+               hoveredCube = null;
+           }
+       }
+   }
+
+   function onWindowResize() {
+       camera.aspect = window.innerWidth / window.innerHeight;
+       camera.updateProjectionMatrix();
+       renderer.setSize(window.innerWidth, window.innerHeight);
+   }
+
+   function animate() {
+       requestAnimationFrame(animate);
+       controls.update();
+       renderer.render(scene, camera);
+   }
+</script>
+</body>
+</html>
+
+
+
