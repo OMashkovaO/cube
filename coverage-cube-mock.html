@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Coverage Cube - Trade Chain Selector</title>
+    <title>3D Coverage Cube - Trade Chain Selector (v2 AC-3259532)</title>
     <style>
         body {
             margin: 0;
@@ -212,16 +212,17 @@
         #slice-panel {
             position: absolute;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 20px;
             background: rgba(30, 30, 40, 0.95);
             padding: 15px 20px;
             border-radius: 8px;
             display: flex;
-            gap: 20px;
+            gap: 15px;
             align-items: center;
             border: 1px solid #444;
             z-index: 100;
+            flex-wrap: wrap;
+            max-width: 40%;
         }
 
         .slice-group {
@@ -237,28 +238,28 @@
         }
 
         select {
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 4px;
             border: 1px solid #444;
             background: #1a1a2e;
             color: white;
-            font-size: 13px;
-            min-width: 150px;
+            font-size: 12px;
+            min-width: 120px;
             cursor: pointer;
         }
 
-        button {
-            padding: 8px 16px;
-            background: #e74c3c;
+        .btn-slice {
+            padding: 6px 12px;
+            background: #444;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-weight: 600;
+            font-size: 11px;
             margin-top: 15px;
         }
 
-        button:hover { background: #c0392b; }
+        .btn-slice:hover { background: #666; }
 
         #tooltip {
             position: absolute;
@@ -299,16 +300,166 @@
             font-weight: 500;
         }
 
-        #weight-matrix-info {
+        /* Стили для панели сравнения */
+        #comparison-panel {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.7);
-            color: #aaa;
-            padding: 8px;
-            border-radius: 4px;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(20, 20, 30, 0.98);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #64b5f6;
+            z-index: 100;
+            min-width: 450px;
+            max-width: 500px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        .comparison-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #64b5f6;
+            margin-bottom: 15px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .strategy-input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .strategy-header {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .strategy-number {
+            background: #64b5f6;
+            color: #000;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .input-group label {
+            display: block;
             font-size: 10px;
-            max-width: 300px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .input-group select, .input-group input {
+            width: 100%;
+            padding: 5px;
+            font-size: 11px;
+            background: #0f0f23;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .cat2-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+
+        .compare-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .compare-btn:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        #comparison-result {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+            display: none;
+        }
+
+        .result-header {
+            font-weight: bold;
+            color: #4caf50;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .result-step {
+            font-size: 11px;
+            color: #ccc;
+            margin-bottom: 4px;
+            padding: 4px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .result-step:last-child {
+            border-bottom: none;
+        }
+
+        .winner {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .weight-highlight {
+            color: #64b5f6;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1400px) {
+            #comparison-panel {
+                position: relative;
+                bottom: auto;
+                right: auto;
+                margin: 20px;
+                max-width: 100%;
+            }
+            #app-container {
+                overflow-y: auto;
+                height: auto;
+                min-height: 100vh;
+            }
         }
     </style>
 </head>
@@ -317,8 +468,8 @@
 <div id="selection-screen">
     <div class="selection-title">Выберите торговую сеть</div>
     <div class="selection-subtitle">
-        Куб весов охвата согласно AC-2904674-09<br>
-        Матрица весов 7×14 (География × Категория)
+        Куб весов охвата согласно AC-3259532 (Алгоритм приоритетов)<br>
+        Двухуровневая система весов: Level 1 (Geo+Cat1) + Level 2 (Cat2)
     </div>
 
     <div class="chain-buttons">
@@ -326,13 +477,11 @@
             <div class="chain-name">Пятёрочка (ТС5)</div>
             <div class="chain-type">7 уровней географии • 14 уровней категории</div>
             <div class="chain-levels">
+                <b>Приоритеты Cat2 (AC-3259532-04):</b>
+                Бренд(5) > Корзина(4) > Баз/НеБаз(3) > ЭТМ(2) > СТМ(1)<br><br>
+                
                 <b>География:</b> Территория → Дивизион → Макрорегион → Цен.кластер → Канал сбыта → Сбытовая → Магазин<br><br>
-
-                <b>Категории:</b><br>
-                УИ1(2) → Категория(2) → УИ2(3) → ФК(4) → УИ3(5) → УИ4(5) → Корзина(6) → Базовая(7) → Небазовая(7) → Цен.сегмент(8) → Бренд(9) →
-                СТМ(10) → Линейка(11) → PLU(12-17)<br><br>
-
-                <i>Цифры в скобках — минимальный вес охвата</i>
+                <b>Категории:</b> УИ1 → Категория → УИ2 → ФК → УИ3 → УИ4 → Корзина → Базовая/Небазовая → Цен.сегмент → Бренд → СТМ → Линейка → PLU
             </div>
         </div>
 
@@ -340,13 +489,14 @@
             <div class="chain-name">Перекрёсток (ТСХ)</div>
             <div class="chain-type">5 уровней географии • 12 уровней категории</div>
             <div class="chain-levels">
+                <b>Приоритеты Cat2 (AC-3259532-03):</b>
+                Корзина(4) > СТМ(3) > Бренд(2) > ЭТМ(1)<br><br>
+                
                 <b>Особенности ТСХ:</b><br>
                 • Нет разделения Баз/НеБаз<br>
-                • Смещенная шкала весов<br><br>
-
-                <b>Общий принцип:</b><br>
-                Чем ниже уровень (глубже), тем выше вес охвата.
-                Максимальный вес 17 достигается на уровне PLU в Магазине.
+                • Другая шкала приоритетов Cat2<br><br>
+                
+                <b>Алгоритм:</b> Сначала сравниваем Geo+Cat1 по матрице, при равенстве — Cat2 по приоритетам выше
             </div>
         </div>
     </div>
@@ -354,10 +504,10 @@
 
 <div id="app-container">
     <div id="info">
-        <h3 style="margin:0 0 8px 0">🎲 3D Cube: Веса охвата</h3>
+        <h3 style="margin:0 0 8px 0">🎲 3D Cube: Веса охвата (AC-3259532)</h3>
         <p style="margin:0; opacity:0.8">
             ЛКМ — вращение | ПКМ — сдвиг | Колесо — зум<br>
-            <span style="color:#4caf50">Зеленый</span> = Базовый | <span style="color:#2196f3">Синий</span> = Комбинация
+            <span style="color:#4caf50">Level 1</span> = Geo+Cat1 | <span style="color:#2196f3">Level 2</span> = Cat2 (разные веса)
         </p>
     </div>
 
@@ -366,29 +516,43 @@
         <button id="change-chain-btn" onclick="showSelection()">Сменить ТС</button>
     </div>
 
-    <div id="weight-matrix-info">
-        <b>Матрица весов:</b><br>
-        <span id="matrix-dims">7 ур.гео × 14 ур.кат</span>
-    </div>
-
     <div id="legend">
         <div class="legend-title">Типы охвата</div>
 
         <div class="legend-item">
             <div class="color-box" style="background: #4caf50;"></div>
-            <div class="legend-text"><span>Базовый охват</span><span>вес из матрицы</span></div>
+            <div class="legend-text"><span>Базовый (только Level 1)</span><span>вес из матрицы</span></div>
         </div>
 
         <div class="legend-item">
             <div class="color-box" style="background: #2196f3;"></div>
-            <div class="legend-text"><span>Комбинация (+фильтр)</span><span>вес 10</span></div>
+            <div class="legend-text"><span>С фильтром Cat2</span><span>вес Cat2</span></div>
         </div>
 
         <div class="weight-legend">
-            <div class="legend-title">Диапазон весов</div>
-            <div class="weight-item"><span>Территория + УИ1:</span><span>2</span></div>
-            <div class="weight-item"><span>Магазин + PLU:</span><span>17</span></div>
-            <div class="weight-item"><span>Комбинация:</span><span>10 (фикс.)</span></div>
+            <div class="legend-title">Приоритеты Cat2 (ТС5)</div>
+            <div class="weight-item"><span>Бренд:</span><span>5</span></div>
+            <div class="weight-item"><span>Корзина:</span><span>4</span></div>
+            <div class="weight-item"><span>Баз/НеБаз:</span><span>3</span></div>
+            <div class="weight-item"><span>ЭТМ:</span><span>2</span></div>
+            <div class="weight-item"><span>СТМ:</span><span>1</span></div>
+        </div>
+
+        <div class="weight-legend" id="tcx-legend" style="display:none">
+            <div class="legend-title">Приоритеты Cat2 (ТСХ)</div>
+            <div class="weight-item"><span>Корзина:</span><span>4</span></div>
+            <div class="weight-item"><span>СТМ:</span><span>3</span></div>
+            <div class="weight-item"><span>Бренд:</span><span>2</span></div>
+            <div class="weight-item"><span>ЭТМ:</span><span>1</span></div>
+        </div>
+        
+        <div class="weight-legend" style="margin-top:10px; padding-top:10px; border-top:2px solid #444;">
+            <div class="legend-title">Алгоритм сравнения</div>
+            <div style="font-size:9px; color:#888; line-height:1.4;">
+                1. Сравниваем Level 1 (Geo+Cat1)<br>
+                2. Если равны — сравниваем Level 2 (Cat2)<br>
+                3. Больший вес = приоритетнее
+            </div>
         </div>
     </div>
 
@@ -409,10 +573,80 @@
             <label>Фильтр — Cat2 (Z)</label>
             <select id="cat2Slice" onchange="applySlice()">
                 <option value="all">Все варианты</option>
-                <option value="base">Только базовый (без фильтра)</option>
             </select>
         </div>
-        <button onclick="resetSlices()">Сбросить</button>
+        <button class="btn-slice" onclick="resetSlices()">Сбросить</button>
+    </div>
+
+    <!-- Панель сравнения стратегий -->
+    <div id="comparison-panel">
+        <div class="comparison-title">⚖️ Сравнение стратегий (AC-3259532-05)</div>
+        
+        <div class="strategy-input">
+            <div class="strategy-header">
+                <span>Стратегия 1</span>
+                <span class="strategy-number">1</span>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>География</label>
+                    <select id="comp1-geo" onchange="updateComparisonState()"></select>
+                </div>
+                <div class="input-group">
+                    <label>Категория 1</label>
+                    <select id="comp1-cat1" onchange="updateComparisonState()"></select>
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Категория 2 (опц.)</label>
+                    <select id="comp1-cat2" onchange="updateComparisonState()">
+                        <option value="">— Нет —</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Вес Cat2</label>
+                    <input type="text" id="comp1-cat2-weight" readonly placeholder="—">
+                </div>
+            </div>
+        </div>
+
+        <div class="strategy-input">
+            <div class="strategy-header">
+                <span>Стратегия 2</span>
+                <span class="strategy-number">2</span>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>География</label>
+                    <select id="comp2-geo" onchange="updateComparisonState()"></select>
+                </div>
+                <div class="input-group">
+                    <label>Категория 1</label>
+                    <select id="comp2-cat1" onchange="updateComparisonState()"></select>
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Категория 2 (опц.)</label>
+                    <select id="comp2-cat2" onchange="updateComparisonState()">
+                        <option value="">— Нет —</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Вес Cat2</label>
+                    <input type="text" id="comp2-cat2-weight" readonly placeholder="—">
+                </div>
+            </div>
+        </div>
+
+        <button class="compare-btn" onclick="compareStrategies()">🔍 Сравнить стратегии</button>
+
+        <div id="comparison-result">
+            <div class="result-header">📊 Результат сравнения</div>
+            <div id="comparison-steps"></div>
+            <div id="comparison-winner" style="margin-top:10px; padding-top:10px; border-top:2px solid #444; font-weight:bold; text-align:center;"></div>
+        </div>
     </div>
 
     <div id="tooltip"></div>
@@ -422,101 +656,91 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
-    // Конфигурации торговых сетей с матрицами весов согласно AC-2904674-09
+    // Конфигурации согласно AC-3259532
     const tradeChains = {
         'PYATEROCHKA': {
             name: 'Пятёрочка',
             type: 'TC5',
-            // 7 уровней географии согласно таблице
             geo: ['Территория', 'Дивизион', 'Макрорегион', 'Цен.кластер', 'Канал сбыта', 'Сбытовая', 'Магазин'],
-            // 14 уровней категории согласно таблице
             catLevels: [
-                'УИ1',              // индекс 0
-                'Категория',        // 1
-                'УИ2',              // 2
-                'ФК',               // 3
-                'УИ3',              // 4
-                'УИ4',              // 5
-                'Корзина',          // 6
-                'Базовая корзина',  // 7
-                'Небазовая корзина',// 8
-                'Ценовой сегмент',  // 9
-                'Бренд',            // 10
-                'СТМ',              // 11
-                'Линейка',          // 12
-                'PLU'               // 13
+                'УИ1', 'Категория', 'УИ2', 'ФК', 'УИ3', 'УИ4', 
+                'Корзина', 'Базовая корзина', 'Небазовая корзина', 
+                'Ценовой сегмент', 'Бренд', 'СТМ', 'Линейка', 'PLU'
             ],
-            // Матрица весов 7×14 согласно скриншоту таблицы
-            // Строки: geo[0-6], Столбцы: cat[0-13]
+            // Матрица весов Level 1 (Geo + Cat1) - AC-3259532-07
             weights: [
-                [2,  2,  3,  4,  5,  5,  6,  7,  7,  8,  9,  10, 11, 12], // Территория (0)
-                [3,  3,  4,  5,  6,  6,  7,  8,  8,  9,  10, 11, 12, 13], // Дивизион (1)
-                [4,  4,  5,  6,  7,  7,  8,  9,  9,  10, 11, 12, 13, 14], // Макрорегион (2)
-                [4,  4,  5,  6,  7,  7,  8,  9,  9,  10, 11, 12, 13, 14], // Цен.кластер (3)
-                [5,  5,  6,  7,  8,  8,  9,  10, 10, 11, 12, 13, 14, 15], // Канал сбыта (4)
-                [6,  6,  7,  8,  9,  9,  10, 11, 11, 12, 13, 14, 15, 16], // Сбытовая (5)
-                [7,  7,  8,  9,  10, 10, 11, 12, 12, 13, 14, 15, 16, 17]  // Магазин (6)
+                [2,  2,  3,  4,  5,  5,  6,  7,  7,  8,  9,  10, 11, 12],
+                [3,  3,  4,  5,  6,  6,  7,  8,  8,  9,  10, 11, 12, 13],
+                [4,  4,  5,  6,  7,  7,  8,  9,  9,  10, 11, 12, 13, 14],
+                [4,  4,  5,  6,  7,  7,  8,  9,  9,  10, 11, 12, 13, 14],
+                [5,  5,  6,  7,  8,  8,  9,  10, 10, 11, 12, 13, 14, 15],
+                [6,  6,  7,  8,  9,  9,  10, 11, 11, 12, 13, 14, 15, 16],
+                [7,  7,  8,  9,  10, 10, 11, 12, 12, 13, 14, 15, 16, 17]
             ],
-            // Допустимые комбинации Cat1 + Cat2 (фильтры) согласно AC-060426-06
+            // Веса Level 2 (Cat2) - AC-3259532-04
+            cat2Weights: {
+                'Бренд': 5,
+                'Корзина': 4,
+                'Баз/НеБаз': 3,
+                'ЭТМ': 2,
+                'СТМ': 1,
+                'Базовая корзина': 3,  // маппинг для конкретных названий
+                'Небазовая корзина': 3
+            },
+            // Доступные комбинации
             validCombinations: {
-                'УИ1': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'Категория': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'УИ2': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'ФК': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'УИ3': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'УИ4': ['Баз/НеБаз', 'Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'Корзина': ['Баз/НеБаз', 'СТМ', 'ЭТМ', 'Бренд'], // нельзя выбрать Корзину как фильтр к Корзине
-                'Ценовой сегмент': ['СТМ', 'ЭТМ', 'Бренд'],
-                'Бренд': ['СТМ', 'ЭТМ'],
+                'УИ1': ['Бренд', 'Корзина', 'ЭТМ', 'СТМ'],
+                'Категория': ['Бренд', 'Корзина', 'ЭТМ', 'СТМ'],
+                'УИ2': ['Бренд', 'Корзина', 'ЭТМ', 'СТМ'],
+                'ФК': ['Бренд', 'Корзина', 'ЭТМ', 'СТМ'],
+                'УИ3': ['Бренд', 'Корзина', 'ЭТМ', 'СТМ'],
+                'УИ4': ['Бренд', 'Корзина', 'ЭТМ', 'СТМ'],
+                'Корзина': ['Бренд', 'ЭТМ', 'СТМ'],
+                'Базовая корзина': [],
+                'Небазовая корзина': [],
+                'Ценовой сегмент': ['Бренд', 'ЭТМ', 'СТМ'],
+                'Бренд': ['ЭТМ', 'СТМ'],
                 'СТМ': ['ЭТМ'],
                 'Линейка': [],
-                'PLU': [] // Только базовый
-            },
-            comboWeight: 10 // Фиксированный вес для комбинаций согласно документу
+                'PLU': []
+            }
         },
         'PEREKRESTOK': {
             name: 'Перекрёсток',
             type: 'TCX',
-            // 5 уровней географии
             geo: ['Дивизион', 'Цен.кластер', 'Сбытовая', 'Канал сбыта', 'Магазин'],
-            // 12 уровней категории (нет Баз/НеБаз)
             catLevels: [
-                'Категория',        // 0
-                'УИ2',              // 1
-                'ФК',               // 2
-                'УИ3',              // 3
-                'УИ4',              // 4
-                'Корзина',          // 5
-                'Ценовой сегмент',  // 6
-                'Бренд',            // 7
-                'СТМ',              // 8
-                'ЭТМ',              // 9
-                'Линейка',          // 10
-                'PLU'               // 11
+                'Категория', 'УИ2', 'ФК', 'УИ3', 'УИ4', 
+                'Корзина', 'Ценовой сегмент', 'Бренд', 'СТМ', 'ЭТМ', 'Линейка', 'PLU'
             ],
-            // Матрица весов 5×12 для ТСХ (смещенная относительно ТС5)
+            // Матрица весов Level 1 для ТСХ (смещенная)
             weights: [
-                [2,  3,  4,  5,  5,  6,  7,  8,  9,  10, 11, 12], // Дивизион (0)
-                [3,  4,  5,  6,  6,  7,  8,  9,  10, 11, 12, 13], // Цен.кластер (1)
-                [4,  5,  6,  7,  7,  8,  9,  10, 11, 12, 13, 14], // Сбытовая (2)
-                [5,  6,  7,  8,  8,  9,  10, 11, 12, 13, 14, 15], // Канал сбыта (3)
-                [6,  7,  8,  9,  9,  10, 11, 12, 13, 14, 15, 16]  // Магазин (4)
+                [2,  3,  4,  5,  5,  6,  7,  8,  9,  10, 11, 12],
+                [3,  4,  5,  6,  6,  7,  8,  9,  10, 11, 12, 13],
+                [4,  5,  6,  7,  7,  8,  9,  10, 11, 12, 13, 14],
+                [5,  6,  7,  8,  8,  9,  10, 11, 12, 13, 14, 15],
+                [6,  7,  8,  9,  9,  10, 11, 12, 13, 14, 15, 16]
             ],
-            // Для ТСХ нет Баз/НеБаз
+            // Веса Level 2 (Cat2) - AC-3259532-03
+            cat2Weights: {
+                'Корзина': 4,
+                'СТМ': 3,
+                'Бренд': 2,
+                'ЭТМ': 1
+            },
             validCombinations: {
-                'Категория': ['Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'УИ2': ['Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'ФК': ['Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'УИ3': ['Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'УИ4': ['Корзина', 'СТМ', 'ЭТМ', 'Бренд'],
-                'Корзина': ['СТМ', 'ЭТМ', 'Бренд'],
-                'Ценовой сегмент': ['СТМ', 'ЭТМ', 'Бренд'],
+                'Категория': ['Корзина', 'СТМ', 'Бренд', 'ЭТМ'],
+                'УИ2': ['Корзина', 'СТМ', 'Бренд', 'ЭТМ'],
+                'ФК': ['Корзина', 'СТМ', 'Бренд', 'ЭТМ'],
+                'УИ3': ['Корзина', 'СТМ', 'Бренд', 'ЭТМ'],
+                'УИ4': ['Корзина', 'СТМ', 'Бренд', 'ЭТМ'],
+                'Корзина': ['СТМ', 'Бренд', 'ЭТМ'],
+                'Ценовой сегмент': ['СТМ', 'Бренд', 'ЭТМ'],
                 'Бренд': ['СТМ', 'ЭТМ'],
                 'СТМ': ['ЭТМ'],
                 'Линейка': [],
                 'PLU': []
-            },
-            comboWeight: 10
+            }
         }
     };
 
@@ -525,27 +749,33 @@
     let cubes = [];
     let raycaster, mouse;
     let hoveredCube = null;
-    let allFilters = new Set(); // Для селектора фильтров
+    let allFilters = new Set();
 
-    // === ГЛОБАЛЬНЫЕ ФУНКЦИИ ===
+    // === ИНИЦИАЛИЗАЦИЯ ===
 
     function selectChain(chainKey) {
         currentConfig = tradeChains[chainKey];
 
         document.getElementById('chain-name-text').textContent =
-            `${currentConfig.name} (${currentConfig.type}) — ${currentConfig.geo.length}×${currentConfig.catLevels.length} матрица`;
-
-        document.getElementById('matrix-dims').textContent =
-            `${currentConfig.geo.length} ур.гео × ${currentConfig.catLevels.length} ур.кат`;
+            `${currentConfig.name} (${currentConfig.type}) — ${currentConfig.geo.length}×${currentConfig.catLevels.length}`;
 
         document.getElementById('selection-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
+        
+        // Показываем правильную легенду для Cat2
+        if (currentConfig.type === 'TCX') {
+            document.getElementById('tcx-legend').style.display = 'block';
+        } else {
+            document.getElementById('tcx-legend').style.display = 'none';
+        }
 
         if (!scene) {
             initThree();
         } else {
             rebuildScene();
         }
+        
+        initComparisonPanel();
     }
 
     function showSelection() {
@@ -559,7 +789,7 @@
         scene.fog = new THREE.Fog(0x0f0f23, 20, 100);
 
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(35, 30, 35);
+        camera.position.set(40, 35, 40);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -568,7 +798,6 @@
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.target.set(currentConfig ? (currentConfig.geo.length * 0.6) : 10, (currentConfig ? currentConfig.catLevels.length * 0.6 : 10), 0);
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
@@ -593,10 +822,8 @@
     }
 
     function rebuildScene() {
-        // Очистка сцены
         cubes.forEach(c => {
             scene.remove(c);
-            // Удаляем детей (спрайты)
             while(c.children.length > 0){
                 const child = c.children[0];
                 if(child.geometry) child.geometry.dispose();
@@ -613,8 +840,18 @@
         createCubes();
         populateSelectors();
         resetSlices();
-        updateLegend();
+        
+        if (controls && currentConfig) {
+            const spacing = 1.2;
+            controls.target.set(
+                (currentConfig.geo.length * spacing) / 2,
+                (currentConfig.catLevels.length * spacing) / 2,
+                3
+            );
+        }
     }
+
+    // === СОЗДАНИЕ 3D СЦЕНЫ ===
 
     function createAxes() {
         const spacing = 1.2;
@@ -626,12 +863,10 @@
             new THREE.Vector3(-0.5, -0.5, 0),
             new THREE.Vector3(maxX, -0.5, 0)
         ]);
-        const xLine = new THREE.Line(xGeo, new THREE.LineBasicMaterial({ color: 0x4caf50, linewidth: 2 }));
-        scene.add(xLine);
+        scene.add(new THREE.Line(xGeo, new THREE.LineBasicMaterial({ color: 0x4caf50 })));
 
-        // Подписи X
         currentConfig.geo.forEach((g, i) => {
-            const sprite = makeTextSprite(g, '#4caf50', 90);
+            const sprite = makeTextSprite(g, '#4caf50', 80);
             sprite.position.set(i * spacing, -0.8, 0);
             sprite.scale.set(2.5, 1.25, 1);
             scene.add(sprite);
@@ -642,10 +877,8 @@
             new THREE.Vector3(-0.5, -0.5, 0),
             new THREE.Vector3(-0.5, maxY, 0)
         ]);
-        const yLine = new THREE.Line(yGeo, new THREE.LineBasicMaterial({ color: 0x2196f3, linewidth: 2 }));
-        scene.add(yLine);
+        scene.add(new THREE.Line(yGeo, new THREE.LineBasicMaterial({ color: 0x2196f3 })));
 
-        // Подписи Y
         currentConfig.catLevels.forEach((c, i) => {
             const sprite = makeTextSprite(c, '#2196f3', 70);
             sprite.position.set(-0.8, i * spacing, 0);
@@ -653,15 +886,14 @@
             scene.add(sprite);
         });
 
-        // Ось Z (Комбинации/Фильтры) - оранжевая
+        // Ось Z (Cat2) - оранжевая
         const maxFilters = Math.max(...Object.values(currentConfig.validCombinations).map(arr => arr.length));
         if (maxFilters > 0) {
             const zGeo = new THREE.BufferGeometry().setFromPoints([
                 new THREE.Vector3(-0.5, -0.5, 0),
                 new THREE.Vector3(-0.5, -0.5, (maxFilters + 1) * spacing)
             ]);
-            const zLine = new THREE.Line(zGeo, new THREE.LineBasicMaterial({ color: 0xff9800 }));
-            scene.add(zLine);
+            scene.add(new THREE.Line(zGeo, new THREE.LineBasicMaterial({ color: 0xff9800 })));
         }
     }
 
@@ -670,44 +902,47 @@
         const ctx = canvas.getContext('2d');
         canvas.width = 512;
         canvas.height = 256;
-
         ctx.font = `Bold ${fontSize}px Arial`;
         ctx.fillStyle = colorStr;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(message, 256, 128);
-
         const texture = new THREE.CanvasTexture(canvas);
-        texture.minFilter = THREE.LinearFilter;
-        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
-        return new THREE.Sprite(spriteMaterial);
+        return new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
     }
 
-    // Функция определения цвета по весу (градиент от зеленого к красному)
     function getColorByWeight(weight) {
-        if (weight <= 3) return 0x81c784;      // Светло-зеленый
-        if (weight <= 5) return 0xffeb3b;      // Желтый
-        if (weight <= 7) return 0xffb74d;      // Оранжевый
-        if (weight <= 9) return 0xff7043;      // Темно-оранжевый
-        if (weight <= 11) return 0xe57373;     // Светло-красный
-        if (weight <= 13) return 0xef5350;     // Красный
-        if (weight <= 15) return 0xd32f2f;     // Темно-красный
-        return 0xb71c1c;                       // Темно-бордовый (16-17)
+        if (weight <= 2) return 0x81c784;
+        if (weight <= 4) return 0xffeb3b;
+        if (weight <= 6) return 0xffb74d;
+        if (weight <= 8) return 0xff7043;
+        if (weight <= 10) return 0xe57373;
+        if (weight <= 12) return 0xef5350;
+        if (weight <= 14) return 0xd32f2f;
+        return 0xb71c1c;
+    }
+
+    function getCat2Color(weight) {
+        // Специальная цветовая схема для Cat2 (синие оттенки)
+        if (weight >= 5) return 0x1565c0; // Темно-синий (Бренд ТС5)
+        if (weight >= 4) return 0x2196f3; // Синий (Корзина)
+        if (weight >= 3) return 0x64b5f6; // Светло-синий (Баз/НеБаз или СТМ ТСХ)
+        if (weight >= 2) return 0x90caf9; // Голубой (ЭТМ или Бренд ТСХ)
+        return 0xbbdefb; // Очень светлый (СТМ ТС5)
     }
 
     function createCubes() {
         const boxGeo = new THREE.BoxGeometry(1, 1, 1);
         const spacing = 1.2;
 
-        // Для каждой ячейки матрицы Geo × CatLevel создаем базовый куб
         for (let g = 0; g < currentConfig.geo.length; g++) {
             for (let c = 0; c < currentConfig.catLevels.length; c++) {
-                const weight = currentConfig.weights[g][c];
-                const color = getColorByWeight(weight);
+                const weightL1 = currentConfig.weights[g][c];
+                const colorL1 = getColorByWeight(weightL1);
 
-                // 1. Базовый куб (Z = 0)
+                // Level 1 (Базовый куб)
                 const baseMat = new THREE.MeshLambertMaterial({
-                    color: color,
+                    color: colorL1,
                     transparent: true,
                     opacity: 0.95
                 });
@@ -722,132 +957,292 @@
                     geoName: currentConfig.geo[g],
                     cat1Name: currentConfig.catLevels[c],
                     cat2Name: null,
-                    weight: weight,
-                    isValid: true
+                    weightL1: weightL1,
+                    weightL2: 0,
+                    totalWeight: weightL1
                 };
 
-                addLabel(baseCube, weight, false, color);
+                addLabel(baseCube, weightL1, false);
                 scene.add(baseCube);
                 cubes.push(baseCube);
 
-                // 2. Кубы комбинаций (если есть)
+                // Level 2 (Кубы Cat2 с динамическими весами)
                 const filters = currentConfig.validCombinations[currentConfig.catLevels[c]] || [];
                 filters.forEach((filterName, fIdx) => {
-                    allFilters.add(filterName);
+                    const weightL2 = currentConfig.cat2Weights[filterName] || 0;
+                    const colorL2 = getCat2Color(weightL2);
+                    const totalWeight = weightL1 + weightL2; // Суммарный вес для сравнения
 
                     const comboMat = new THREE.MeshLambertMaterial({
-                        color: 0x64b5f6, // Синий для комбинаций
+                        color: colorL2,
                         transparent: true,
-                        opacity: 0.8,
-                        emissive: 0x1976d2,
-                        emissiveIntensity: 0.2
+                        opacity: 0.85,
+                        emissive: colorL2,
+                        emissiveIntensity: 0.1
                     });
 
                     const comboCube = new THREE.Mesh(boxGeo, comboMat);
-                    // Z позиция основана на индексе фильтра
                     comboCube.position.set(g * spacing, c * spacing, (fIdx + 1) * spacing);
 
                     comboCube.userData = {
                         type: 'combo',
                         geo: g,
                         cat1: c,
-                        cat2: fIdx, // индекс фильтра
+                        cat2: fIdx,
                         geoName: currentConfig.geo[g],
                         cat1Name: currentConfig.catLevels[c],
                         cat2Name: filterName,
-                        weight: currentConfig.comboWeight,
-                        isValid: true
+                        weightL1: weightL1,
+                        weightL2: weightL2,
+                        totalWeight: totalWeight
                     };
 
-                    addLabel(comboCube, currentConfig.comboWeight, true);
+                    addLabel(comboCube, weightL2, true);
                     scene.add(comboCube);
                     cubes.push(comboCube);
+                    allFilters.add(filterName);
                 });
             }
         }
     }
 
-    function addLabel(cube, text, isCombo, baseColor = null) {
+    function addLabel(cube, text, isL2) {
         const canvas = document.createElement('canvas');
         canvas.width = 128;
         canvas.height = 128;
         const ctx = canvas.getContext('2d');
 
-        if (isCombo) {
-            ctx.fillStyle = '#1565c0';
+        if (isL2) {
+            ctx.fillStyle = '#0d47a1';
             ctx.fillRect(0, 0, 128, 128);
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 48px Arial';
+            ctx.font = 'bold 52px Arial';
         } else {
-            // Фон в цвет куба (осветленный)
-            const hex = baseColor ? baseColor.toString(16).padStart(6, '0') : '4caf50';
+            const hex = cube.material.color.getHexString();
             ctx.fillStyle = '#' + hex;
             ctx.fillRect(0, 0, 128, 128);
-
-            // Контрастный текст
             ctx.fillStyle = (text > 9) ? 'white' : 'black';
-            ctx.font = 'bold 52px Arial';
+            ctx.font = 'bold 48px Arial';
         }
 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-
-        if (text > 9) ctx.font = 'bold 44px Arial';
-        if (text > 12) ctx.font = 'bold 38px Arial';
-
+        
+        if (text > 9) ctx.font = isL2 ? 'bold 44px Arial' : 'bold 40px Arial';
+        
         ctx.fillText(text, 64, 64);
 
         const texture = new THREE.CanvasTexture(canvas);
-        const spriteMat = new THREE.SpriteMaterial({ map: texture });
-        const sprite = new THREE.Sprite(spriteMat);
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
         sprite.scale.set(0.8, 0.8, 0.8);
-        sprite.position.y = 0; // Центр куба
         cube.add(sprite);
     }
+
+    // === ИНСТРУМЕНТ СРАВНЕНИЯ ===
+
+    function initComparisonPanel() {
+        // Заполняем селекты для сравнения
+        const populateSelect = (selId, options) => {
+            const sel = document.getElementById(selId);
+            sel.innerHTML = '';
+            options.forEach((opt, idx) => {
+                sel.innerHTML += `<option value="${idx}">${opt}</option>`;
+            });
+        };
+
+        // Заполняем географию и кат1 для обеих стратегий
+        populateSelect('comp1-geo', currentConfig.geo);
+        populateSelect('comp1-cat1', currentConfig.catLevels);
+        populateSelect('comp2-geo', currentConfig.geo);
+        populateSelect('comp2-cat1', currentConfig.catLevels);
+
+        // Заполняем Cat2
+        const populateCat2 = (selId) => {
+            const sel = document.getElementById(selId);
+            sel.innerHTML = '<option value="">— Нет —</option>';
+            
+            // Собираем все возможные Cat2
+            const cat2Options = new Set();
+            Object.values(currentConfig.validCombinations).forEach(arr => {
+                arr.forEach(f => cat2Options.add(f));
+            });
+            
+            Array.from(cat2Options).sort().forEach(filter => {
+                const weight = currentConfig.cat2Weights[filter] || 0;
+                sel.innerHTML += `<option value="${filter}">${filter} (вес: ${weight})</option>`;
+            });
+        };
+
+        populateCat2('comp1-cat2');
+        populateCat2('comp2-cat2');
+
+        // Сбрасываем результаты
+        document.getElementById('comparison-result').style.display = 'none';
+    }
+
+    function updateComparisonState() {
+        // Обновляем отображение весов Cat2 при изменении выбора
+        const updateCat2Weight = (selId, displayId) => {
+            const sel = document.getElementById(selId);
+            const display = document.getElementById(displayId);
+            const val = sel.value;
+            
+            if (!val) {
+                display.value = 'Базовый';
+                display.style.color = '#888';
+            } else {
+                const weight = currentConfig.cat2Weights[val] || 0;
+                display.value = weight;
+                display.style.color = '#64b5f6';
+            }
+        };
+
+        updateCat2Weight('comp1-cat2', 'comp1-cat2-weight');
+        updateCat2Weight('comp2-cat2', 'comp2-cat2-weight');
+    }
+
+    function compareStrategies() {
+        if (!currentConfig) return;
+
+        // Получаем значения
+        const s1 = {
+            geo: parseInt(document.getElementById('comp1-geo').value),
+            cat1: parseInt(document.getElementById('comp1-cat1').value),
+            cat2: document.getElementById('comp1-cat2').value
+        };
+
+        const s2 = {
+            geo: parseInt(document.getElementById('comp2-geo').value),
+            cat1: parseInt(document.getElementById('comp2-cat1').value),
+            cat2: document.getElementById('comp2-cat2').value
+        };
+
+        // Получаем веса Level 1
+        const weightL1_s1 = currentConfig.weights[s1.geo][s1.cat1];
+        const weightL1_s2 = currentConfig.weights[s2.geo][s2.cat1];
+
+        // Получаем веса Level 2 (если есть)
+        const weightL2_s1 = s1.cat2 ? (currentConfig.cat2Weights[s1.cat2] || 0) : 0;
+        const weightL2_s2 = s2.cat2 ? (currentConfig.cat2Weights[s2.cat2] || 0) : 0;
+
+        // Формируем описания
+        const desc1 = `${currentConfig.geo[s1.geo]} + ${currentConfig.catLevels[s1.cat1]}${s1.cat2 ? ' + ' + s1.cat2 : ''}`;
+        const desc2 = `${currentConfig.geo[s2.geo]} + ${currentConfig.catLevels[s2.cat1]}${s2.cat2 ? ' + ' + s2.cat2 : ''}`;
+
+        // Алгоритм сравнения AC-3259532-05
+        let steps = [];
+        let winner = null;
+        let reason = '';
+
+        // Шаг 1: Сравнение Level 1
+        steps.push(`<div class="result-step"><b>Шаг 1:</b> Сравнение Level 1 (Geo + Cat1)<br>
+            Стратегия 1: <span class="weight-highlight">${weightL1_s1}</span> (${desc1.split('+')[0].trim()} + ${desc1.split('+')[1].trim()})<br>
+            Стратегия 2: <span class="weight-highlight">${weightL1_s2}</span> (${desc2.split('+')[0].trim()} + ${desc2.split('+')[1].trim()})</div>`);
+
+        if (weightL1_s1 > weightL1_s2) {
+            winner = 1;
+            reason = `Level 1 выше (${weightL1_s1} > ${weightL1_s2})`;
+        } else if (weightL1_s2 > weightL1_s1) {
+            winner = 2;
+            reason = `Level 1 выше (${weightL1_s2} > ${weightL1_s1})`;
+        } else {
+            // Шаг 2: Сравнение Level 2 (если Level 1 равны)
+            steps.push(`<div class="result-step"><b>Шаг 2:</b> Level 1 равны (${weightL1_s1}), сравнение Level 2 (Cat2)<br>
+                Стратегия 1: <span class="weight-highlight">${weightL2_s1}</span> ${s1.cat2 ? '(' + s1.cat2 + ')' : '(нет фильтра)'}<br>
+                Стратегия 2: <span class="weight-highlight">${weightL2_s2}</span> ${s2.cat2 ? '(' + s2.cat2 + ')' : '(нет фильтра)'}</div>`);
+
+            if (weightL2_s1 > weightL2_s2) {
+                winner = 1;
+                reason = `Level 2 выше (${weightL2_s1} > ${weightL2_s2})`;
+            } else if (weightL2_s2 > weightL2_s1) {
+                winner = 2;
+                reason = `Level 2 выше (${weightL2_s2} > ${weightL2_s1})`;
+            } else {
+                winner = 0; // Равны
+                reason = 'Веса полностью равны (коллизия)';
+            }
+        }
+
+        // Вывод результатов
+        const resultDiv = document.getElementById('comparison-result');
+        const stepsDiv = document.getElementById('comparison-steps');
+        const winnerDiv = document.getElementById('comparison-winner');
+
+        stepsDiv.innerHTML = steps.join('');
+        
+        if (winner === 0) {
+            winnerDiv.innerHTML = `<span style="color:#ff9800">⚠️ ${reason}</span><br><small>Требуется дополнительное правило разрешения коллизий</small>`;
+        } else {
+            winnerDiv.innerHTML = `<span class="winner">🏆 Стратегия ${winner} приоритетнее</span><br><small>Причина: ${reason}</small>`;
+        }
+
+        resultDiv.style.display = 'block';
+
+        // Подсвечиваем выбранные кубы в 3D (опционально)
+        highlightCubes(s1, s2);
+    }
+
+    function highlightCubes(s1, s2) {
+        // Сбрасываем прозрачность
+        cubes.forEach(c => {
+            c.material.opacity = c.userData.type === 'base' ? 0.95 : 0.85;
+            c.material.emissiveIntensity = c.userData.type === 'combo' ? 0.1 : 0;
+        });
+
+        // Находим и подсвечиваем выбранные
+        cubes.forEach(c => {
+            const d = c.userData;
+            
+            // Для стратегии 1
+            if (d.geo === s1.geo && d.cat1 === s1.cat1) {
+                if ((!s1.cat2 && d.type === 'base') || (d.cat2Name === s1.cat2)) {
+                    c.material.emissive = new THREE.Color(0xffd700);
+                    c.material.emissiveIntensity = 0.5;
+                    c.material.opacity = 1;
+                }
+            }
+            
+            // Для стратегии 2
+            if (d.geo === s2.geo && d.cat1 === s2.cat1) {
+                if ((!s2.cat2 && d.type === 'base') || (d.cat2Name === s2.cat2)) {
+                    c.material.emissive = new THREE.Color(0xff4081);
+                    c.material.emissiveIntensity = 0.5;
+                    c.material.opacity = 1;
+                }
+            }
+        });
+    }
+
+    // === ОСТАЛЬНЫЕ ФУНКЦИИ ===
 
     function populateSelectors() {
         const geoSel = document.getElementById('geoSlice');
         const cat1Sel = document.getElementById('cat1Slice');
         const cat2Sel = document.getElementById('cat2Slice');
 
-        const geoVal = geoSel.value;
-        const cat1Val = cat1Sel.value;
-        const cat2Val = cat2Sel.value;
-
-        // География
         geoSel.innerHTML = '<option value="all">Все территории</option>';
         currentConfig.geo.forEach((g, i) => {
             geoSel.innerHTML += `<option value="${i}">${g}</option>`;
         });
 
-        // Категория 1
-        cat1Sel.innerHTML = '<option value="all">Все уровни категорий</option>';
+        cat1Sel.innerHTML = '<option value="all">Все уровни</option>';
         currentConfig.catLevels.forEach((c, i) => {
             const hasFilters = currentConfig.validCombinations[c] && currentConfig.validCombinations[c].length > 0;
             const suffix = hasFilters ? ` (+${currentConfig.validCombinations[c].length})` : '';
             cat1Sel.innerHTML += `<option value="${i}">${c}${suffix}</option>`;
         });
 
-        // Категория 2 (Фильтры)
         cat2Sel.innerHTML = '<option value="all">Все варианты</option>';
         cat2Sel.innerHTML += '<option value="base">Только базовые (без фильтра)</option>';
-
+        
         if (allFilters.size > 0) {
-            cat2Sel.innerHTML += '<optgroup label="Фильтры (Cat2):">';
+            cat2Sel.innerHTML += '<optgroup label="Фильтры Cat2:">';
             Array.from(allFilters).sort().forEach(filter => {
-                cat2Sel.innerHTML += `<option value="${filter}">${filter}</option>`;
+                const weight = currentConfig.cat2Weights[filter] || 0;
+                cat2Sel.innerHTML += `<option value="${filter}">${filter} (вес ${weight})</option>`;
             });
             cat2Sel.innerHTML += '</optgroup>';
         }
-
-        // Восстановление значений
-        if ([...geoSel.options].some(o => o.value === geoVal)) geoSel.value = geoVal;
-        if ([...cat1Sel.options].some(o => o.value === cat1Val)) cat1Sel.value = cat1Val;
-        if ([...cat2Sel.options].some(o => o.value === cat2Val)) cat2Sel.value = cat2Val;
-    }
-
-    function updateLegend() {
-        // Можно обновить динамически если нужно
     }
 
     function applySlice() {
@@ -878,17 +1273,22 @@
         document.getElementById('cat2Slice').value = 'all';
         applySlice();
 
-        // Сброс камеры
         if (controls && currentConfig) {
             const spacing = 1.2;
             controls.target.set(
                 (currentConfig.geo.length * spacing) / 2,
                 (currentConfig.catLevels.length * spacing) / 2,
-                0
+                3
             );
-            camera.position.set(35, 30, 35);
+            camera.position.set(40, 35, 40);
             controls.update();
         }
+
+        // Сбрасываем подсветку сравнения
+        cubes.forEach(c => {
+            c.material.opacity = c.userData.type === 'base' ? 0.95 : 0.85;
+            c.material.emissiveIntensity = c.userData.type === 'combo' ? 0.1 : 0;
+        });
     }
 
     function onMouseMove(event) {
@@ -905,44 +1305,37 @@
 
         if (intersects.length > 0) {
             const object = intersects[0].object;
-
             if (hoveredCube !== object) {
                 hoveredCube = object;
                 const d = object.userData;
-
                 tooltip.style.display = 'block';
-
-                // Цветовая индикация веса
-                const weightColor = d.type === 'base'
-                    ? '#' + getColorByWeight(d.weight).toString(16).padStart(6, '0')
-                    : '#2196f3';
 
                 if (d.type === 'base') {
                     tooltip.innerHTML = `
-                        <div class="tooltip-header">Базовый охват</div>
-                        <div class="tooltip-row"><span class="tooltip-label">Торговая сеть:</span><span class="tooltip-value">${currentConfig.name}</span></div>
+                        <div class="tooltip-header">Базовый охват (Level 1)</div>
+                        <div class="tooltip-row"><span class="tooltip-label">Сеть:</span><span class="tooltip-value">${currentConfig.name}</span></div>
                         <div class="tooltip-row"><span class="tooltip-label">География:</span><span class="tooltip-value">${d.geoName}</span></div>
-                        <div class="tooltip-row"><span class="tooltip-label">Категория:</span><span class="tooltip-value">${d.cat1Name}</span></div>
-                        <div class="tooltip-row"><span class="tooltip-label">Вес охвата:</span><span class="tooltip-value" style="color:${weightColor}; font-size:14px; font-weight:bold">${d.weight}</span></div>
-                        <div class="tooltip-row"><span class="tooltip-label">Тип:</span><span class="tooltip-value">Базовая комбинация</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Категория 1:</span><span class="tooltip-value">${d.cat1Name}</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Вес Level 1:</span><span class="tooltip-value" style="color:#4caf50; font-size:14px; font-weight:bold">${d.weightL1}</span></div>
+                        <div style="margin-top:8px; padding-top:8px; border-top:1px solid #444; font-size:10px; color:#888;">
+                            Алгоритм: сравнение по Level 1, при равенстве → Level 2
+                        </div>
                     `;
                 } else {
                     tooltip.innerHTML = `
-                        <div class="tooltip-header">Охват с фильтром</div>
-                        <div class="tooltip-row"><span class="tooltip-label">Торговая сеть:</span><span class="tooltip-value">${currentConfig.name}</span></div>
+                        <div class="tooltip-header">Охват с фильтром (Level 1+2)</div>
+                        <div class="tooltip-row"><span class="tooltip-label">Сеть:</span><span class="tooltip-value">${currentConfig.name}</span></div>
                         <div class="tooltip-row"><span class="tooltip-label">География:</span><span class="tooltip-value">${d.geoName}</span></div>
-                        <div class="tooltip-row"><span class="tooltip-label">Уровень 1:</span><span class="tooltip-value">${d.cat1Name}</span></div>
-                        <div class="tooltip-row"><span class="tooltip-label">Фильтр:</span><span class="tooltip-value" style="color:#64b5f6">${d.cat2Name}</span></div>
-                        <div class="tooltip-row"><span class="tooltip-label">Вес охвата:</span><span class="tooltip-value" style="color:#2196f3; font-size:14px; font-weight:bold">${d.weight} (фикс.)</span></div>
-                        <div class="tooltip-row"><span class="tooltip-label">Правило:</span><span class="tooltip-value">${d.cat1Name} + ${d.cat2Name}</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Категория 1:</span><span class="tooltip-value">${d.cat1Name}</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Фильтр (Cat2):</span><span class="tooltip-value" style="color:#64b5f6">${d.cat2Name}</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Вес Level 1:</span><span class="tooltip-value">${d.weightL1}</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Вес Level 2:</span><span class="tooltip-value" style="color:#2196f3; font-weight:bold">${d.weightL2}</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Суммарный вес:</span><span class="tooltip-value" style="color:#ffd700; font-size:14px; font-weight:bold">${d.totalWeight}</span></div>
                     `;
                 }
             }
-
-            // Обновляем позицию тултипа
             tooltip.style.left = Math.min(event.clientX + 15, window.innerWidth - 320) + 'px';
             tooltip.style.top = Math.min(event.clientY + 15, window.innerHeight - 200) + 'px';
-
         } else {
             if (hoveredCube) {
                 tooltip.style.display = 'none';
@@ -966,4 +1359,3 @@
 </script>
 </body>
 </html>
-
